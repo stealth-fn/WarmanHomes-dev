@@ -1,0 +1,2627 @@
+//get a reference error in safair if we don't create this version global variable
+var pageID, version; 
+
+//has to be declared or we recieve and error in loadCKEditor()
+var CKEDITOR_BASEPATH = '/ckeditor/';
+
+//don't always want/need jquery collections
+$s = function(id){return document.getElementById(id);} 
+$$s = function(cName){if(document.getElementsByClassName) return document.getElementsByClassName(cName);}
+$$$s = function(eName){return document.getElementsByName(eName);}
+
+//Return an SHA256 digest of a string object
+String.prototype.sha256 = function(){
+	return sha256_digest(this.salt+this);
+}
+
+if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+	var isMobile = true;
+} 
+else {
+	var isMobile = false;
+}
+
+jQuery.validator.setDefaults({//set defaults on jquery form validation
+	onkeyup:false, onclick:false,	onfocusout:false, //only check when we 'submit' form	 
+	focusCleanup: false, //Don't remove classes when we select a field
+	focusInvalid: true, //Autofocus on first invalid field
+	errorClass: "invalid", //invalid css class
+	validClass: "valid", // valid css class
+	errorPlacement: function(){},
+	ignoreTitle:true,
+	highlight: function(element, errorClass, validClass) { // Add error classes for styling
+       $(element).addClass(errorClass).removeClass(validClass);
+	   
+	   var tempLabel = $(element.form).find("label[for=" + $(element).attr('name') + "]");
+       if(tempLabel && tempLabel.length > 0) {
+		   tempLabel.addClass(errorClass + "Label");
+	   }
+    },
+    unhighlight: function(element, errorClass, validClass) { // Remove error classes
+			   
+		var tempLabel = $(element.form).find("label[for=" + $(element).attr('name') + "]");
+		if(tempLabel && tempLabel.length > 0) {
+			tempLabel.removeClass(errorClass + "Label");
+		}
+       $(element).removeClass(errorClass).addClass(validClass);
+	},
+	showErrors: function(errorMap, errorList) { //display error messages in a modal dialog
+		var formErrMsg = "\n\t\t<span class='modalErrorMsg'>There were errors with your form. Please make sure you have filled in all required fields with the proper info.</span>\n\t\t<span class='modalErrorMsg'>Click anywhere to hide this message</span>\n\t\t<div>\n\t\t\t<ul>";
+		var formErrs = "";
+		$.each(errorMap,function(index,value) {
+			//radio and check buttons. the class is the description for the group
+			if($$$s(index)[0].type === "checkbox" || $$$s(index)[0].type === "radio"){
+				formErrs += "\n\t\t\t\t<li><span>" + $$$s(index)[0].className + "</span>" + value + "</li>";
+			}
+			else{
+				if($("label[for='"+index+"']") && $("label[for='"+index+"']").length > 0){
+					var field = $("label[for='"+index+"']").html();
+				}
+				else{
+					
+					var tempClass = $("[name='"+index+"']").attr("class");
+					if(tempClass){
+						var field = $("[name='"+index+"']").attr("class").split(" ")[0];
+					}
+					else{
+						var field = "";
+					}
+				}
+
+				formErrs += "\n\t\t\t\t<li><span>" + field + "</span>" + value + "</li>";
+			}
+		});
+		formErrMsg += formErrs + "\n\t\t\t</ul>\n\t\t</div>";
+		if(formErrs.length){ //If we have errors!
+			buildModal("formError-"+this.currentForm.id,formErrMsg,null,true,true,1,null,null,440) //Display a modal dialog
+		}
+		this.defaultShowErrors(); //Apply the label classes, etc.
+	},
+	messages:{
+	    required: "This field is required.",
+	    remote: "Please fix this field.",
+	    email: "Please enter a valid email address.",
+	    url: "Please enter a valid URL.",
+	    phoneUS: "Please enter a valid phone number.",
+	    date: "Please enter a valid date.",
+	    dateISO: "Please enter a valid date (ISO).",
+	    number: "Please enter a valid number.",
+	    digits: "Please enter only digits.",
+	    creditcard: "Please enter a valid credit card number.",
+	    equalTo: "Please enter the same value again.",
+	    accept: "Please enter a value with a valid extension.",
+	    maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
+	    minlength: jQuery.validator.format("Please enter at least {0} characters."),
+	    rangelength: jQuery.validator.format("Please enter a value between {0} and {1} characters long."),
+	    range: jQuery.validator.format("Please enter a value between {0} and {1}."),
+	    max: jQuery.validator.format("Please enter a value less than or equal to {0}."),
+	    min: jQuery.validator.format("Please enter a value greater than or equal to {0}.")
+	},
+	ignore: []
+});
+
+//valid time
+jQuery.validator.addMethod(
+	"time", 
+	function(value, element) {  
+	    return this.optional(element) || /^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?([\s]?[AaPp][Mm])?$/i.test(value);  
+    }, 
+    "Please enter a time in the format HH:MM. AM/PM is optional."
+);
+
+//doesn't accept field defaults as valid input
+jQuery.validator.addMethod("defaultInvalid", function(value, element) {
+    return !(element.value == element.defaultValue);
+},
+    "This field is required."
+);
+
+/* Function: buildModal
+/	 Purpose: displays a modal dialog
+/		id: id for the dialog (for styling!)
+/		inner: the content to be displayed
+/		parent: the parent element to display it over
+/		fullScreen: whether or not it should take up the full browser window
+/		fixed: positioning, false = absolute, useful for when displaying over a smaller element and requires regular flow, true = fixed, useful for overlaying entire page
+/		closeType: how it closes, 0 = timed, 1 = click anywhere, 2 = close modal button, string = button ID
+/		closeTime: for closeType = 0, defines length of time before it closes
+/		boxHeight: height of inner box
+/		boxWidth: width of inner box
+/		modClass: additional classes
+*/
+function buildModal(
+	id,inner,parent,fullScreen,fixed,closeType,closeTime,boxHeight,boxWidth,event,modalClass
+){
+	//default close type
+	if(closeType !== 0 && closeType !== 1 && closeType.length === 0) closeType = 0;  
+	// default close time
+	closeTime = closeTime || 3000; 
+	parent = parent || document.body;
+	modalClass = modalClass || "";
+	cls = (id.indexOf("formError") != -1) ? "formError " + id : "common"; 
+	var modal = $("<div class='modal modal-" + cls + " " + modalClass + "'  id='" + id + "'></div>").append(
+		$("<div class='modalInner'></div>").append($(inner))
+	);
+	$(parent).append(modal); //Append our modal dialog to our parent
+	var wid = (fullScreen) ? $(window).width() : $(parent).outerWidth();
+	var heig = (fullScreen) ? $(window).height() : $(parent).outerHeight();
+	var pos = fixed ? "fixed" : "absolute";
+	
+		$("#"+ id).css({ //Position and size our modal overlay
+			display: 'none',
+			height: heig + 'px',
+			left: '0px',
+			position: pos,
+			top: '0px',
+			width: wid + 'px',
+			zIndex: '9999'
+		}).fadeIn();
+		
+		var inHeight = boxHeight || ((fullScreen) ? $(window).height() * (2 / 3) :  $(parent).outerHeight() * (2 / 3)); // Set the max height of the inner container
+		var inWidth = boxWidth || ((fullScreen) ? $(window).width() * (2 / 3) :  $(parent).outerWidth() * (2 / 3));
+		
+		$("#"+ id + " .modalInner").css({ //Set up the position and size styling for the modal box, the rest can be styled in our standardStyles
+			height: 'auto',
+			maxHeight: inHeight + "px",
+			left: '0px',
+			overflow: 'hidden',
+			paddingBottom: '40px', // Take into account our error list size
+			position: 'fixed',
+			left: (($("#" + id).width() - inWidth) / 2) + 'px',
+			top: (($("#" + id).height() - inHeight)  / 2) + 'px',
+			width:  inWidth + 'px'
+		});
+		
+		inHeight = (boxHeight == null) ? $("#" + id + " .modalInner").outerHeight() : inHeight;  
+		//Animate show the box!
+		$("#" + id + "  .modalInner").css({height:'0px'}).animate({height:inHeight+"px"},500); 
+
+		if(!isNaN(closeType)){ //Set up our close listeners
+			if(!closeType){ //Timed
+				window.setTimeout(  
+				    function() {  
+				        $("#" + id).fadeOut().remove(); 
+				    },  
+				    closeTime  
+				);
+			}
+			//default modal cose button
+			else if(closeType===2){
+				//create the button
+				$(".modalInner").append(
+					$('<div class="modalClose">X</div>')
+				);
+				//js to remove the modal
+				$(".modalClose").on("click",function(){
+					$(this).parent().parent().fadeOut().remove();
+				});
+			}
+			else{ //Click anywhere
+				$("#" + id).on("click",function(){
+					$(this).fadeOut().remove();
+				});
+			}
+		}
+		else{ //Defined element
+			$(closeType).on("click",function(){
+					$("#" + id).fadeOut().remove();
+			}).children().click(function(e){e.stopPropagation();});
+		}
+		
+		if(event){
+			event.cancelBubble = true; //prevent event bubbling
+			if(event.stopPropagation) event.stopPropagation();
+		}
+}
+
+//Check if variable is defined and not null
+function isset(v){ 
+	//they can pass in the name of a global
+	if("string" === typeof v) {
+		v = window[v];
+	}
+	return ("undefined" !== typeof v && null !== v);
+}
+
+function emptystring(s){
+	return (!isset(s) || s.length == 0);
+}
+
+function repSubstr(input, from, to) {// Replace from with to in input
+   return input.split(from).join(to);
+}
+
+//converts a 12 hour time string to a 24 hour time string that is mysql compatible
+function timeConvertMysql(timeVal){
+	var timeAry = timeVal.split(":");
+	var timeHrs = timeAry[0];
+	var timeStr = false;
+	
+	if(timeVal.match(/am/i)) timeStr = timeHrs + ":" + timeAry[1].slice(0,timeAry[1].indexOf(" ",0)) + ":00";
+	else if(timeVal.match(/pm/i)){
+		timeHrs = parseInt(timeHrs) + 12;
+		timeStr = timeHrs + ":" + timeAry[1].slice(0,timeAry[1].indexOf(" ",0)) + ":00";
+	}
+	return timeStr;
+}
+
+function isNumeric(n){
+	return !isNaN(parseInt(n,10));
+}
+
+//is added for the forms with multiple checkboxes, we require to send all of checkboxe values to client's email
+function sendFormValues(formObj){
+	var formAjax = ajaxObj();//check to see if our form has valid data
+	var formCompleted = formObj.validate().form();
+	
+	if(formCompleted){
+		var paramString = "";
+		paramString = formObj.serialize();
+		
+		var paramArray = paramString.split("&");
+		
+		var params = [];
+		var tempA = [];
+		for( var i = 0; i <= paramArray.length - 1; i++){
+			var paramArr = paramArray[i].split("=");
+			if (jQuery.inArray(paramArr[0], tempA)!==-1) {
+				params[jQuery.inArray(paramArr[0], tempA)] = params[jQuery.inArray(paramArr[0], tempA)] + "," + paramArr[1];				
+			}
+			else {
+				tempA.push(paramArr[0]);
+				if($("[name='"+paramArr[0]+"']").attr("title")){
+					param = $("[name='"+paramArr[0]+"']").attr("title");
+				}
+				else{
+					param = paramArr[0].replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
+				}
+				
+				params.push(encodeURI(param) + "=" + paramArr[1]);
+				
+			}
+			
+		}
+		
+		//extra parameter so we know we're sending the form value from this script
+		//should prevent blank forms from being sent
+		params.push("scriptSend=1");
+	
+		paramString = params.join("&");
+
+		formAjax.formObj = formObj;
+		formAjax.onreadystatechange=function(){
+			if(formAjax.readyState===4){
+				var formSubmittedMsg = "<span class='modalValidMsg'>Your information has been submitted!<span class='smaller'>Click anywhere to hide this message.</span></span>";
+				buildModal("formSuccess",formSubmittedMsg,null,true,true,1,null,null,440) //Display a modal dialog
+				formObj[0].reset();
+				return true;
+			}
+		}
+		ajaxPost(formAjax,"/public/sendForm.php",paramString,true,1,null,false);
+		
+		return false;
+	}	
+}
+
+function ajaxObj(){//ajaxObj
+	var xmlhttp = false;
+	try {
+		xmlhttp = new XMLHttpRequest();
+	}
+	catch (e) {
+		alert("Your browser does not support AJAX");
+	}
+	return xmlhttp;
+}
+
+function ajaxPost(ajaxObject,location,params,async,getPost,contentType,historyTrack,justTrackHist){
+	async=isset(async)? async: true;
+	getPost=isset(getPost)? getPost: true;
+	contentType=isset(contentType)? contentType: "application/x-www-form-urlencoded";
+	historyTrack=isset(historyTrack)? historyTrack:true;
+	justTrackHist = justTrackHist || false; //used for single page sites
+	historyBool=isset(window["historyBool"])? window["historyBool"]:true;
+	var urlParams = "";
+	//URL parameters without the function or pageID
+	var cleanParams;
+	var argsCaller;
+
+	try{
+		//historyBool is global var that is set in headScripts.php
+		if(historyTrack && historyBool){
+			//setup ajax bookmark and browser navigation
+			var callerFunction = arguments.callee.caller;
+			
+			while(callerFunction){
+				if(getParentFunctionCall(callerFunction)) {
+					argsCaller = callerFunction;
+					callerFunction = getParentFunctionCall(callerFunction);
+				}
+				else {
+					break;
+				}
+			}
+			var callerFunStr = callerFunction.toString();
+			var tempFunName = callerFunStr.substr(callerFunStr.indexOf("{",0)+1);
+			var historyFunName = tempFunName.substr(0,tempFunName.indexOf("(",0));														  
+																			  			
+			var historyFunParams = "";
+			var callerFunctionArgs = argsCaller.arguments;
+			var argCnt = callerFunctionArgs.length;
+
+			for(var i = 0; i < argCnt; i++){
+				if(historyFunParams.length === 0) historyFunParams = "'" + callerFunctionArgs[i] + "'";
+				else historyFunParams = historyFunParams + "," + "'" + callerFunctionArgs[i] + "'";	
+			}
+			//changes URL for bookmarks, and contains page content for foward\back-buttons
+			//we don't want the function param or pageID in our URL
+			if(params.length > 0 ){
+				var regexFunc = new RegExp("[\&]?(function=[a-zA-Z_%]*)");
+				var regexPageID = new RegExp("[\&]?(pageID=[\-]?[0-9]*)");
+				cleanParams = params.replace(regexFunc,"");
+				cleanParams = cleanParams.replace(regexPageID,"");
+				cleanParams = cleanParams.replace(/^\&/,"");
+				cleanParams = encodeURIComponent(cleanParams);
+				urlParams = (cleanParams.length > 0) ? pageArray[pageID].name +  "?" + cleanParams : pageArray[pageID].name;
+			}
+
+			historyBool = false;
+			var historySet = {ajaxRunFunction: historyFunName + "(" + historyFunParams + ")", hisUrlParams: urlParams};
+
+			if(historySet.ajaxRunFunction != History.getState().data.ajaxRunFunction) {
+				History.pushState(historySet,"",urlParams);
+			}
+			else {
+				History.replaceState(historySet,"",urlParams);
+				historyBool = true;
+			}
+		}
+	}
+	catch(e){alert("stealth history track error:" + e);}
+	
+	if(justTrackHist){
+		//hacky way for now...
+		ajaxObject.ajaxPost = {responseText:'{"priKeyID":'+pageID+'}'};
+		ajaxObject.onreadystatechange();
+		ajaxObject.abort();
+		return;
+	}
+
+	if(getPost){
+		ajaxObject.open("POST",location,async);
+		ajaxObject.setRequestHeader("Content-type", contentType);
+		ajaxObject.setRequestHeader("Content-length", params.length);
+		ajaxObject.setRequestHeader("Connection", "close");
+		
+		try{
+			ajaxObject.send(params);
+		}
+		catch(e){
+			/*probably no internet connectoin, return 
+			404 so we store form info in local storeage*/
+			ajaxObject.status = 404;
+		}
+	}
+	else{
+		//the location could have params itself already
+		if(location.indexOf("?") === -1) params = "?" + params;
+		ajaxObject.open("GET",location + params,async);
+		ajaxObject.send(null);
+		
+		try{
+			ajaxObject.send(null);
+		}
+		catch(e){
+			/*probably no internet connectoin, return 
+			404 so we store form info in local storeage*/
+			ajaxObject.status = 404;
+		}
+	}
+}
+
+//return the caller of the function object
+function getParentFunctionCall(funObj){
+	if(funObj.caller) return funObj.caller;
+	else return false;
+}
+
+function fieldEscape(fieldVal){
+	try{ return escape(htmlentities(fieldVal)); } catch(e){ alert(e); }
+}
+
+function ckFieldEscape(fieldVal){
+	return CKEDITOR.instances[fieldVal].getData();
+}
+
+function htmlentities(str) {
+	return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function loadSinglePageSite(){
+	var currentPage = pageArray[pageID].pageOrder;
+	var prevPages = [], nextPages = [];
+	
+	for(var i in pageArray){ //Grab all of the pages in order, split by the current loaded page
+		if(parseInt(i) != pageID){
+			if(pageArray[i].pageOrder < currentPage){
+				prevPages[pageArray[i].pageOrder - 1] = i; 
+			}
+			else{
+				nextPages[pageArray[i].pageOrder - currentPage - 1] = i; 
+			}
+		}
+	}
+	
+	if(prevPages.length + nextPages.length <= 1){
+		return;
+	}
+	
+	var first = (prevPages.length > 0) ? prevPages.pop() : -1
+	if(first === -1) first = (nextPages.length > 0) ? nextPages.shift() : -1; //get the first to load if exists
+	var current = first, next = -1;
+	
+	while(prevPages.length > 0 || nextPages.length > 0){ //loop through the rest and build a chain of pages to load
+		if(pageArray[current].pageOrder < pageArray[pageID].pageOrder){ //The current page to load is to the left/top
+			next = (nextPages.length > 0) ? nextPages.shift() : (prevPages.length > 0) ? prevPages.pop() : null;
+			if(next !== null){
+				if(!emptystring(pageArray[current].postUpdate)){
+					pageArray[current].tempPost = pageArray[current].postUpdate;
+				}
+				pageArray[current].postUpdate = "upc("+next+",null,false);";
+			}		
+		}
+		else{
+			next = (prevPages.length > 0) ? prevPages.pop() : (nextPages.length > 0) ? nextPages.shift() : null;
+			if(next !== null){
+				if(!emptystring(pageArray[current].postUpdate)){
+					pageArray[current].tempPost = pageArray[current].postUpdate;
+				}
+				pageArray[current].postUpdate = "upc("+next+",null,false);";
+			}
+		}
+		if(prevPages.length <= 0 && nextPages.length <= 0){
+			if(!emptystring(pageArray[next].postUpdate)){
+				pageArray[next].tempPost = pageArray[next].postUpdate;
+			}
+			pageArray[next].postUpdate = "$('#li').fadeOut(400);pageID = "+pageID+";";
+		}
+		else{
+			current = next;
+		}
+		if(prevPages.length === 0 && nextPages.length === 0){
+			if(!emptystring(pageArray[pageID].postUpdate))
+			pageArray[next].postUpdate += pageArray[pageID].postUpdate;
+		}
+	}
+	upc(first,null,false);
+}
+
+function upt(pID){//update pageText container
+	var pageAjax = ajaxObj();
+	var moduleParams = "function=getRecordByID&pID=" + pID;
+	
+	pageAjax.onreadystatechange=function(){
+		if(pageAjax.readyState===4){
+			//JSON parse reponse, update innerHTML of pageText
+			$(".pageText").html(JSON.parse(pageAjax.responseText).prodIndex0.pageCode);
+			document.title = $(document.createElement('div')).html( JSON.parse(pageAjax.responseText).prodIndex0.pageTitle).text();
+			pageID = pID; //update global variable
+		}
+	}
+	ajaxPost(pageAjax,"/cmsAPI/pages/pages.php",moduleParams,true,0,false,true);
+}
+
+function upc(pID,moduleParams,hisTrack){//main function for updating pages
+
+	//if the first character in our parameters is a ? remove it
+	if(moduleParams) {
+		moduleParams = repSubstr(moduleParams,"?","");
+	}
+	
+	window.scrollTo(0,0);
+	if(typeof(pageAjax) !== "undefined") pageAjax.abort();//abort previous page updates
+	
+	if(moduleParams) var moduleParams = "function=getPage&pageID=" + pID + "&" + moduleParams;
+	else var moduleParams = "function=getPage&pageID=" + pID;
+	
+	hisTrack = isset(hisTrack) ? hisTrack : (pID !== pageID);
+	prevPage = pageID; //we need the previous page if we are appending a page instead of replacing
+	pageID = pID; //global variable for pageID
+	pID = prevPage; //need to use this just in case we are doing a single page load and need to reset it!
+	
+	//clear timers and intervals we had for this page
+	for(var tempTimer in pageInterTime){
+		try{ clearTimeout(pageInterTime[tempTimer]); } catch(e){}
+		try{ clearInterval(pageInterTime[tempTimer]); } catch(e){}
+		delete(pageInterTime[tempTimer]);
+	}
+	
+	pageAjax = ajaxObj();
+	pageAjax.hideEffectComplete = false;
+	pageAjax.histTrack = hisTrack;
+	
+	$("#li").fadeTo(400,1,"swing");//show loading gif
+	if(singlePageSite){
+		upcDoUpdate();
+	}
+	else{
+		$(".pcpy").stop().fadeTo(400,0,"swing",
+			function(){
+				pageAjax.hideEffectComplete = true;
+				//only proceed if the ajax request is finished
+				if(typeof(pageAjax.responseText) !== 'unknown' && pageAjax.responseText.length > 0){
+					upcDoUpdate();
+				}
+			}
+		);
+	}
+	
+	//only proceed if the fade is finished
+	pageAjax.onreadystatechange=function(){
+		if(pageAjax.readyState===4){
+			if(pageAjax.hideEffectComplete){
+				upcDoUpdate();
+			}
+		}
+	}
+	
+	//make the request for the page content
+	ajaxPost(
+		 pageAjax, //XMLHTTPRequest Object
+		"/cmsAPI/pages/pages.php", //API Path
+		moduleParams, //url params
+		true, //async
+		0, //GET
+		false, //text/html
+		hisTrack, //track history
+		(singlePageSite&&pageArray[pageID].pageLoaded)
+	);
+
+	//preUpdate function, default fades in the pagecopy and hides the loading gif
+	var tempUpdate = new Function(pageArray[prevPage].preUpdate);
+	tempUpdate();
+}
+
+// Function: upcDoUpdate
+// Purpose: helper function for the upc function, removes old scripts and styles if not a single page site.
+function upcDoUpdate(){
+	if(!singlePageSite){ //If it's not a single page site, remove the script for the modules loaded for the previous page				
+		while($s("moduleScript")) $("#moduleScript").remove();
+	}				
+	if(pageAjax.readyState===4){
+		updatePage();//parse response and finalize page update
+	}
+}
+
+function updatePage(){//finalizes page transition with data retrieved from the server
+	pageAjax.pageData = JSON.parse(pageAjax.responseText);
+	
+	//clear out old styles
+	if(!pageArray[pageAjax.pageData.priKeyID].pageLoaded){
+		if(navigator.appVersion.indexOf("MSIE") != -1){
+				var cssCnt = document.styleSheets.length;
+				for(var c = 0; c < cssCnt; c++)
+					//ie 7 and 8 handle styleSheets differently in winxp and win7
+					//need to look for a title and update the correct one		
+					if(document.styleSheets[c].title==="moduleStyles"){
+						if(singlePageSite){
+							pageAjax.pageData.moduleStyles = document.styleSheets[c].cssText + pageAjax.pageData.moduleStyles;
+						}
+						document.styleSheets[c].cssText = "";
+					}
+		}
+		else{
+			if(singlePageSite){
+				pageAjax.pageData.moduleStyles = $("[title='moduleStyles']").text() + pageAjax.pageData.moduleStyles;
+			}
+			$("[title='moduleStyles']").empty();
+		}
+	}
+	var tempAfterC = pageArray[pageAjax.pageData.priKeyID].afterComplete;
+	upcAfterComplete(new Function(tempAfterC));
+
+}
+
+// Function: upcAfterComplete
+// Purpose: the replace or append scripts, styles, pageTitle, etc after the ajax call has completed
+function upcAfterComplete(transition){
+	if(
+		(singlePageSite && !pageArray[pageAjax.pageData.priKeyID].pageLoaded) ||
+		!singlePageSite
+	){
+		//build the pagecopy container
+		var page = $("<div id='pcpy"+pageAjax.pageData.priKeyID+"' class='pcpy'></div>");
+
+		/*$("#pcpy" + pageAjax.pageData.priKeyID).hide(1000);*/
+		if(singlePageSite){
+			//Build an array of our pages (we can't index an object)
+			if(pageArray[prevPage].pageOrder < pageArray[pageAjax.pageData.priKeyID].pageOrder){
+				$("[id^='pcpy']:last").after(page);
+			}
+			else{
+				$("#pc").prepend(page);
+			}
+			pageArray[pageAjax.pageData.priKeyID].pageLoaded = 1;
+			page.html(
+				pageAjax.pageData.beforeModuleCode +
+				pageAjax.pageData.pageCode + 
+				pageAjax.pageData.afterModuleCode
+			);
+		}
+		else{
+			//put in new content & update the id's of our containers
+			$(".pcpy").eq(0).html(
+				pageAjax.pageData.beforeModuleCode +
+				pageAjax.pageData.pageCode + 
+				pageAjax.pageData.afterModuleCode
+			)
+			.attr("id","pcpy"+pageAjax.pageData.priKeyID);
+			
+			$(".pc").attr("id","pc"+pageAjax.pageData.priKeyID);
+		}
+		
+		if(singlePageSite){
+			var scriptTag = "moduleScriptHead" + pageAjax.pageData.priKeyID;
+		}
+		else{
+			//must remove old script everytime for FF. can only add .change attribute once
+			if($s("moduleScriptHead")) $("#moduleScriptHead").remove();
+			var scriptTag = "moduleScriptHead";
+		}
+		
+		//insert new moduleScriptHead, should be flexible enough to allow scripts for all pages
+		var tempScript = document.createElement('script');
+		tempScript.id = scriptTag;
+		document.getElementsByTagName("head")[0].appendChild(tempScript);
+		$s(scriptTag).text = pageAjax.pageData.moduleScripts;
+		// replace stylesheets
+		if(navigator.appVersion.indexOf("MSIE") != -1){
+			var cssCnt = document.styleSheets.length;
+			for(var c = 0; c < cssCnt; c++){
+				//ie 7 and 8 handle styleSheets differently in winxp and win7
+				//need to look for a title and update the correct one
+				if(document.styleSheets[c].title ==="moduleStyles") {
+					document.styleSheets[c].cssText = pageAjax.pageData.moduleStyles;
+				}
+			}
+		}
+		else{
+			$("[title='moduleStyles']").text(pageAjax.pageData.moduleStyles);
+		}
+		
+		//run page transition functions, and functions for the modules
+		try{
+		new Function(
+			pageAjax.pageData.moduleRunScripts + 
+			pageAjax.pageData.modulePageTransition + 
+			pageAjax.pageData.pageTransition
+		)();
+		}
+		catch(e){}
+	}
+	
+	try{ 
+		if(transition !== null) transition();
+	}
+	catch(e){
+		//Account for a possible error, maybe call default...
+	}
+	if(pageAjax.histTrack == true){
+		_gaq.push(['_trackPageview', (pageAjax.pageData.pageTitle || pageArray[pageAjax.pageData.priKeyID].pageTitle)]);//google tracking code
+		document.title = (singlePageSite) ? pageArray[pageAjax.pageData.priKeyID].pageTitle :
+											$(document.createElement('div')).html(pageAjax.pageData.pageTitle).text();
+	}
+	//postUpdate function, default fades in the pagecopy and hides the loading gif
+	var tempPostUp = pageArray[pageAjax.pageData.priKeyID].postUpdate;
+			
+	if(tempPostUp && tempPostUp.length > 0){
+		transition(pageAjax);
+	}
+	else{
+		$(".pcpy").stop().fadeTo(500,1,"swing")
+	}
+	$("#li").stop().hide(400);
+	
+	if(!emptystring(pageArray[pageAjax.pageData.priKeyID].tempPost)){
+		pageArray[pageAjax.pageData.priKeyID].postUpdate = pageArray[pageAjax.pageData.priKeyID].tempPost;
+		delete pageArray[pageAjax.pageData.priKeyID].tempPost;
+	}
+	delete pageAjax;
+
+}
+
+/*as we create accordionObjects we store them in this parent object
+so we can reference them when we login in/out to get member pages*/
+var accordionTreeObjs = {};
+function accordionTree(navClass,navType,toggleSpeed){
+	this.navID = "#navOuter-"+navClass;
+	this.navType = navType; //navType, used for generating nav on member sign in
+	this.className = navClass;
+	this.toggled = false;
+	this.toggleSpeed = toggleSpeed;
+	this.className = navClass;
+	
+	this.toggleBlind = function(tID,thisRoot,afterEval,clickObjID,thisEvent){
+		//the element that was clicked, has to be passed as a string for the History to work
+		var clickObj = $s(clickObjID);
+
+		//prevent event bubbling
+		if(thisEvent){
+			thisEvent.cancelBubble = true; 
+			if(thisEvent.stopPropagation) thisEvent.stopPropagation();
+		}
+		//change the class on whichever one we clicked so that its marked as clicked
+		this.updateAccordianObjs(tID);
+		
+		if(afterEval.length> 0) {
+			var afterRun = new Function(afterEval);
+		}
+		else{
+			var afterRun = new Function("return true");
+		}
+
+		//we clicked on a root element
+		/*if(pageArray[tID].pageLevel<2){
+			try{
+				console.log(accordionTree.prototype.lastExpandedRoot);
+				//we clicked on a new root
+				if(accordionTree.prototype.lastExpandedRoot != tID){
+					this.toggled = true; 
+					$(this.navID).find(".ec").removeClass("expand");
+				}
+				//we clicked on the previously expanded root, hide all but the direct descendents
+				else{
+					this.toggled = true;
+					$(this.navID).find(clickObj).next().find(".ec").removeClass("expand");
+				}
+
+				afterRun(tID);
+			}
+			catch(e){}
+			
+		}
+		//child was clicked. close its siblings
+		else if(
+			!isNaN(pageArray[tID].parentPageID) && 
+			pageArray[tID].parentPageID !== 0 &&
+			!this.toggled
+		){
+			try{
+				//first page we're going to is a subpage
+				this.toggled = true;
+				$(this.navID).find(clickObj).parent().siblings().each(
+					function(){ //close all sibling children
+						$(this).find(".ec").removeClass("expand");
+					}
+				)
+
+				afterRun();
+			}
+			catch(e){}
+		}		
+		else if(!this.toggled && isset(afterEval)){ 
+			afterRun(tID);
+		}*/
+		
+		$(".ec").removeClass("expand");
+		$(clickObj).parent('.ec').addClass("expand");
+		$(clickObj).children('.ec').addClass("expand");
+
+		afterRun();
+
+		//need properties changes across all instances of the accordionTree object
+		if(pageArray[tID].pageLevel<2){
+			accordionTree.prototype.lastExpandedRoot = tID ;
+		}
+		else{
+			accordionTree.prototype.lastExpandedRoot = thisRoot;
+		}
+
+		accordionTree.prototype.lastExpanded = tID;
+		this.toggled = false;
+	}
+		
+	/*this.showChildren = function(tID){	
+		$(this.navID).find('.ni'+tID).mouseleave(function(){//if we leave the nav item
+			$(this).find('.ec').stop(true).fadeOut(250); //hide all children
+		}).children('.ec').show(0,function(){ //show the first children container
+			$(this).mouseenter(function(){$(this).stop().fadeTo(0,1);}) //handles quick mouseout/mousenters
+				   .mouseleave(function(){$(this).stop(true).fadeOut(250);}); //hide on mouseout
+		});
+	}*/
+}
+
+accordionTree.prototype.determineRoot = function(){
+	var nc = $(".nc.fakeHover");
+	if(nc.length <= 0) return null;
+	else{
+		return nc.not("[id^='sn']").first().attr('class').split("ni")[1].split(" ")[0];
+	}		
+}
+
+accordionTree.prototype.updateAccordianObjs = function(tID){
+	//remove fake hover class from any nav objects that may have it
+	$(".nc").removeClass('fakeHover');
+	//assign fakeHover to all nav items with the same id. regardless of nav menu
+	$(".ni" + tID)
+		.parents(".nc")
+		.andSelf()
+		.not('.ntp')
+		.addClass("fakeHover",this.toggleSpeed);
+}
+
+accordionTree.prototype.lastExpandedRoot = 0;
+accordionTree.prototype.lastExpanded = 0;
+
+/* checks window width and sets up mobile styling/functionality if necessary */
+responsiveNav = function(){	
+	//loop through all our navigations
+	for(var prop in accordionTreeObjs){
+		//instance is set to be responsive.
+		if(accordionTreeObjs[prop].isResponsive == true){
+			if($(window).width() < 990) {
+				//if responsive hasn't been set for this navigation yet
+				if($('#navOuter-' + accordionTreeObjs[prop].className + '.mobileNav').length == 0){
+					
+					//create responsive menu button
+					if($('#navInner-' + accordionTreeObjs[prop].className + ' .expandRespNav').length == 0){
+						$('#navInner-' + accordionTreeObjs[prop].className).append('<h2 class="expandRespNav"><i class="fa fa-reorder"></i></h2>');
+					}
+					
+					$('#navOuter-' + accordionTreeObjs[prop].className).addClass("closedMobileNav");
+										
+					//add class to our nav parent so we know we're in mobile mode
+					$('#navOuter-' + accordionTreeObjs[prop].className).addClass("mobileNav");
+					
+					//loop through our links and attach the onclicks as events
+					$('#navOuter-' + accordionTreeObjs[prop].className + " .nc > a.nc").each(
+						function(inex, el){	
+							var tempClick = repSubstr(
+								$(el).attr('onclick'),"return false",""
+							);
+							
+							tempClick = repSubstr(
+								tempClick,"event","null"
+							);
+										
+							$(el).attr('data-onclick',tempClick);
+							$(el).removeAttr('onclick');
+							$(el).removeAttr('onmouseover');
+						}
+					);
+					
+					//run responsive nav script
+					$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu({
+						menuHeight: accordionTreeObjs[prop].menuHeight,
+						menuWidth: accordionTreeObjs[prop].menuWidth,
+						collapsed: accordionTreeObjs[prop].collapsed,
+						overlapWidth: accordionTreeObjs[prop].overlapWidth,
+						originalOverlapWidth: accordionTreeObjs[prop].overlapWidth,
+						menuInactiveClass: "cMenu",
+						mode:"overlap",
+						swipe:"desktop",
+						/*because of the we always want to show our root level
+						we need to take some liberties with the way overlapWidth
+						is used. we keep track of our levels, and then if we return
+						to the root level, we set overlapWidth manually by dividing
+						it by whatever level we're currently at.*/
+						menuLevel:1,
+						//jquery object to reference in callbacks
+						navObj: '#navOuter-' + accordionTreeObjs[prop].className,
+						//by default the nav should only be as tall as the menu button.
+						//remove the css class that dictates this.
+						onExpandMenuStart:function(plugOptions){
+
+							$(arguments[0].navObj).removeClass("closedMobileNav");
+							//once expanded change overlap to 0 otherwise
+							//menu button vanishes on levels > 1
+							if(plugOptions.menuLevel > 1){
+								$(arguments[0].navObj).multilevelpushmenu('option', 'overlapWidth', '0');
+							}
+							else{
+								$(arguments[0].navObj).multilevelpushmenu('option', 'overlapWidth', plugOptions.originalOverlapWidth);
+							}
+						},
+						onBackItemClick:function(thisEvent, menuLevelObject, clickedItem){
+							if(clickedItem.menuLevel > 0){
+								clickedItem.menuLevel--;
+							}
+							
+							$(this).parent().parent().siblings().removeClass("closedMobileChildren");
+						},
+						//if we are hiding the nav, and the menu is collpased, make the nav
+						//the same height as the button again.
+						onTitleItemClick:function(thisEvent, menuLevelObject, clickedItem){
+							$(clickedItem.navObj).addClass("closedMobileNav");
+							$(clickedItem.navObj).multilevelpushmenu('option', 'overlapWidth', clickedItem.originalOverlapWidth/clickedItem.menuLevel);
+							clickedItem.menuLevel = 1;
+							$(clickedItem.navObj).multilevelpushmenu(
+								'collapse'
+							);
+						},
+						//if they click on a link with no children, collapse nav
+						onItemClick:function(thisEvent, menuLevelObject, clickedItem, plugOptions){
+							//go to the page the user clicks on
+							eval($("#" + clickedItem[0].id + " > a").attr('data-onclick'));
+							
+							$(plugOptions.navObj).addClass("closedMobileNav");
+							$(plugOptions.navObj).multilevelpushmenu('option', 'overlapWidth', plugOptions.originalOverlapWidth/plugOptions.menuLevel);
+							plugOptions.menuLevel = 1;
+							$(plugOptions.navObj).multilevelpushmenu(
+								'collapse'
+							);
+						},
+						onGroupItemClick:function(thisEvent, menuLevelObject, clickedItem, plugOptions){
+							//go to the page the user clicks on
+							eval($("#" + clickedItem[0].id + " > a").attr('data-onclick'));
+							
+							//don't show its children. we control this manually with the arrow
+							$(plugOptions.navObj).addClass("closedMobileNav");
+							$(plugOptions.navObj).multilevelpushmenu('option', 'overlapWidth', plugOptions.originalOverlapWidth/plugOptions.menuLevel);
+							plugOptions.menuLevel = 1;
+							$(plugOptions.navObj).multilevelpushmenu(
+								'collapse'
+							);
+						},
+						onCollapseMenuEnd:function(plugOptions){
+							//make sure that we set the overlapWidth to the proper one.
+							if(plugOptions.menuLevel == 1){
+								$('#navOuter-' + accordionTreeObjs[prop].className).scrollTop(0);
+								$(plugOptions.navObj).multilevelpushmenu('option', 'overlapWidth', plugOptions.originalOverlapWidth);
+								$(".nc").removeClass("closedMobileChildren");
+							}
+						}
+					});
+					
+					//remove href from back button
+					$(".backItemClass a").each(
+						function(inex, el){	
+							$(el).removeAttr('href');
+						}
+					);
+					
+					//loop through our links and attach the onclicks as events
+					$('#navOuter-' + accordionTreeObjs[prop].className + " .hc > .nc").each(
+						function(inex, el){								
+							//create an icon to expand this page to see its children
+							$(el).after( 
+								'<a class="childShow" id="childShow' + $(el).get(0).id + '">&gt;</a>' 
+							);
+							
+							//javascript to go to children 
+							$("#childShow" + $(el).get(0).id).click(
+							
+								function(event){
+									event.stopPropagation();
+									//get currrent menu level
+									var tempMenuLevel = 
+										$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+											'option', 
+											'menuLevel'
+										);
+									
+									//increase the menu level by 1	
+									tempMenuLevel++;
+									$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+										'option', 
+										'menuLevel', 
+										tempMenuLevel						
+									);
+									
+									//expand to desired menu level
+									$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu( 
+										'expand' , $(this).next()
+									);
+									//to manage the fakehovers, we run the click
+									eval($(this).prev().attr('data-onclick'));
+									
+									$(this).parent().siblings(".nc").addClass("closedMobileChildren");
+								}
+							);
+						}
+					);
+					
+					$(".pcpy").click(
+						function(){
+					 
+							$('#navOuter-' + accordionTreeObjs[prop].className).addClass("closedMobileNav");
+							$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+								'option', 
+								'overlapWidth', 
+								$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+									'option', 
+									'originalOverlapWidth'
+								)/$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+									'option', 
+									'menuLevel'
+								)
+							);
+							
+							$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+								  'option', 
+								  'menuLevel', 
+								  1						
+							 );
+							
+							$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu(
+								'collapse'
+							);
+											
+
+						}
+					);
+
+				}
+				//redraw mobile nav for responsiveness
+				else{
+					$('#navOuter-' + accordionTreeObjs[prop].className).multilevelpushmenu( 'redraw' );
+				}
+			}
+			else if ($(window).width() >= 990) {
+				$s('navOuter-' + accordionTreeObjs[prop].className).outerHTML = accordionTreeObjs[prop].stealthNav;
+				$(".pcpy").off("click");
+			} 
+		}
+	}
+}
+//once the site loads, run the script for the responsive nav
+$(window).load(function(){
+	responsiveNav();
+});
+
+/* check width on resize and execute transition functions if necessary */
+$(window).bind('resize', function() {
+	responsiveNav();
+});
+
+function stealthCommon(){};
+//defaults for input fields that need to be handled in a special manner
+//format date and time for mysql
+stealthCommon.prototype.timeFieldArray = [];
+
+stealthCommon.prototype.addEditModule = function(addEditBtn,blkEdit,addEditDraftBtn){
+	
+	//try-catch because asyn errors are difficult to detect	
+	try{
+		//determine what form by the add/edit button		
+		this.modForm = addEditBtn.form; 	
+
+		/*function to run before module submits, such as
+		checking if user and login are available for user
+		NOTE the preFunction must return true if you want to continue
+		*/
+		if(this.preFunction) {
+			var preFunc = this.preFunction();
+			if(!preFunc) return;
+		}
+		
+		//determine if we are adding or editing the module record			
+		if($(this.modForm).find("input[name='priKeyID']").val() == 0) {
+			this.addEdit = false;
+		}
+		else this.addEdit = true;
+		
+		//check to see if there is a form validation script, and if there is that our form validates
+		if(typeof($(this.modForm).validate) === "undefined" || $(this.modForm).validate().form()){ 
+			//disable so they can't multi-click
+			$(this.modForm).find("input[name='moduleAddEditBtn']").attr("disabled", false);
+			$(this.modForm).find("input[name='moduleAddEditDraftBtn']").attr("disabled", false);
+			
+			//change cursor to loading icon
+			$('html').css('cursor','wait');
+			var moduleAjax = ajaxObj(); //prepare our ajax request
+			
+			//encrypt any sha256 classed fields
+			if(this.encryptFields){
+				var encFields = this.encryptFields.split(',');
+				for (var i = encFields.length - 1; i >= 0; i--){
+					this.modForm[encFields[i]].value = this.modForm[encFields[i]].value.sha256();
+				}
+			}
+
+			//put form fields into a JSON object
+			var requestParams = this.getRequestFields(this,blkEdit,addEditDraftBtn);
+						
+			//determine if the we are online or offline
+			//determined by a propertly in the module
+			if(isset(this.isModOnline)) {
+				var onlineCheck = this.isModOnline;
+			}
+			//not specified by the module, check for connectivity
+			else{
+				var onlineCheck = this.isOnline();
+			}
+
+			//silverline - online
+			if(onlineCheck){
+				//blk add edit... return our JSON object and send all form JSON objects to the server at once
+				if(blkEdit){
+					return requestParams;
+				}
+				//individual record add/edit
+				else{
+					//if its a public form with an instanceID
+					requestParams += isset(this.modForm.instanceID) ? "&instanceID=" + this.modForm.instanceID.value : "";
+					
+					//pass the instanceID along so we know which to use on the server
+					requestParams += "&pmpmID=" + this.pmpmID;
+
+					ajaxPost(
+						moduleAjax,
+						this.apiPath,
+						requestParams,
+						false,
+						1,
+						"application/x-www-form-urlencoded",
+						false
+					);
+					xmlResponse = moduleAjax.responseText;
+				}
+				
+				//there was an error, probably wrong security level
+				if(isNaN(xmlResponse)){
+					alert(this.apiPath + xmlResponse);
+					return false;
+				}
+				
+				//add priKeyID, change submit button text
+				if(!this.addEdit){
+					$(this.modForm).find("input[name='priKeyID']").val(xmlResponse);
+					this.priKeyID = xmlResponse;
+				}
+				
+				//add priKeyIDs for draft and live data, change submit button text when users click on DraftSave and Save Changes Button
+				if(addEditDraftBtn){
+					 $(this.modForm).find("input[name='draftPriKeyID']").val(xmlResponse);	
+					 this.draftPriKeyID = xmlResponse;
+					$(this.modForm).find("input[name='moduleAddEditDraftBtn']").val("Edit Draft");
+				}
+				else {
+					$(this.modForm).find("input[name='livePriKeyID']").val(xmlResponse);
+					this.livePriKeyID = xmlResponse;
+					$(this.modForm).find("input[name='moduleAddEditBtn']").val("Edit " + this.moduleAlert);	
+				}
+				
+			}
+			
+			//silverline - offline
+			else{
+				//they key for our offline idata is the date in milliseconds
+				var d = new Date();
+				var n = d.getTime(); 
+				
+				//it encoded, but we don't want that version
+				var requestParams = decodeURIComponent(
+					this.getRequestFields(this,blkEdit,addEditDraftBtn)
+				);
+								
+				localStorage.setItem(n,requestParams);
+			}
+			
+			/*silverline - no matter if this is online or offline
+			we want to keep the last ticket available to display*/
+			/*var requestParams = decodeURIComponent(
+				this.getRequestFields(this,blkEdit,addEditDraftBtn)
+			);
+			localStorage.setItem("prevTicket",requestParams);*/
+		
+			//quick add/edit, probably through another module
+			if(this.quickAddEdit) {
+				$("#" + this.moduleClassName).fadeOut().remove();
+			}
+				
+			//enable add/edit buttons, reset cursor
+			this.addEditComplete();
+			
+			//callback function for submitting a form
+			if(this.nextFunction) {
+				this.nextFunction();
+			}
+
+			if(!this.addEdit && this.disMsg == 1) {
+				alert(this.moduleAlert + " has been added");
+				
+			}
+			else if(this.addEdit && this.disMsg == 1) {
+				alert(this.moduleAlert + " has been updated");
+			}
+		}
+
+	}
+	catch(e){
+		alert("addEdit Mod Error:" + e);
+	}
+}
+
+stealthCommon.prototype.isOnline = function(){
+	//test network connectivity with ajax
+	var netTest = ajaxObj();
+	
+	netTest.onerror = function(){
+		return false;
+	}
+	
+	ajaxPost(
+		netTest,
+		"/public/networkTest.php",
+		"",
+		false,
+		1,
+		"application/x-www-form-urlencoded",
+		false
+	);
+	
+	if(netTest.status >= 200 && netTest.status < 304){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+//create Object we turn to JSON full of form values
+stealthCommon.prototype.getRequestFields = function(prntObj,blkEdit,addEditDraftBtn){
+	var modData = {};
+	
+	/*can't use dot notation here or MSIE breaks, probably should 
+	of used a smarter value other than 'function'
+	
+	determine the function on the server to call, add  be for single records or bulk changes
+	*/
+	
+	var modLen = prntObj.modForm.length;
+	
+	//create and object, that has a property for each checkbox name group as an array
+	var tempCheckVal = {};
+	var tempCheckNames = $("#" + prntObj.modForm.id + " input[type='checkbox']").each(
+		function(){
+			if(!tempCheckVal[$(this).attr("name")]) {
+				tempCheckVal[$(this).attr("name")] = [];
+			}
+		}
+	);
+
+	for(i=0;i<modLen;i++){
+		var modElement = prntObj.modForm.elements[i];
+
+		//ckEditor text fields
+		if(isset("CKEDITOR") && CKEDITOR.instances[modElement.id]) {
+			modData[modElement.name] = ckFieldEscape(modElement.id);		
+		}
+		//radio buttons
+		else if(modElement.type === "radio") {
+			modData[modElement.name] = $(
+				"#" + prntObj.modForm.id + ' input[name='+modElement.name+']:checked'
+			).val();
+		}
+		//checkbox
+		else if(modElement.type === "checkbox") {
+			if($s(modElement.id).checked) {
+				tempCheckVal[modElement.name].push($s(modElement.id).value);
+			}
+		}
+		 //time field... must convert 12hr to 24hr for mysql
+		else if(prntObj.timeFieldArray[modElement.name]) {
+			modData[modElement.name] = timeConvertMysql(modElement.value);
+		}
+		//regular text field
+		else {
+			modData[modElement.name] = modElement.value;
+		}
+	}
+	
+	//put checkbox values into object
+	for(var key in tempCheckVal) {
+		modData[key] = tempCheckVal[key].join();
+	}
+	
+	//remove values from any fields that we don't want submitted
+	if(prntObj.ignoreFields){
+		var ignFields = prntObj.ignoreFields.split(",");
+		for (var i = ignFields.length - 1; i >= 0; i--){
+			//don't sent it at all
+			delete modData[ignFields[i]];
+			//this.modForm[ignFields[i]].value='';
+		}
+	}
+	
+	//determine the function on the server to call, add or update the data
+	modData.priKeyID = $(this.modForm).find("input[name=priKeyID]").val();
+	modData.draftPriKeyID=$(this.modForm).find("input[name=draftPriKeyID]").val();	
+	modData.livePriKeyID=$(this.modForm).find("input[name=livePriKeyID]").val();
+
+	/*if the draft button exists, we know the draft option is available for this module.
+	If a user clicks on draft button, add the data first time then set priKeyID as draftPriKeyID 
+	so that it won't change in the next click. Do the same for liveButton */
+	if($$s("moduleAddEditDraftBtn")[0]){
+		if(addEditDraftBtn){
+			if(!modData.draftPriKeyID) {
+				modData.isDraft = 1;
+				modData["function"] ="addRecord";
+			}
+			else {
+				modData.priKeyID= modData.draftPriKeyID;
+				modData["function"] ="updateRecord";
+			}
+		}
+		else {
+			if(modData.livePriKeyID == "")  { 
+				modData.isDraft = 0;
+			 	modData["function"] ="addRecord";
+			}
+			else {
+				modData.priKeyID = modData.livePriKeyID;
+				modData["function"] ="updateRecord";
+			}
+		}
+	}
+	//Add and update the data for all other pages who do not have draft button.
+	else {
+		if(!modData.priKeyID) {
+			modData["function"] ="addRecord" ;
+		}
+		else {
+			modData["function"] ="updateRecord";
+		}
+	}
+	
+	if(!blkEdit) {
+		return "modData=" + encodeURIComponent(JSON.stringify(modData));
+	}
+	else{ 
+		return modData;
+	}
+	
+}
+
+//update all records when we're editing in bulk mode
+stealthCommon.prototype.bulkMassAddEdit = function() {
+	
+	var moduleAjax = ajaxObj();
+	
+	//all of our module forms
+	var addEditForms = $$$s("moduleForm");
+	
+	//number of forms to loop through
+	var formQty = addEditForms.length;
+	
+	//object to pass to server contain modified form information
+	var recordChanges = {};
+
+	for(var x = 0; x < formQty; x++){
+		var tempJSObj = addEditForms[x].jsObjName.value;
+
+		//we don't want to display an update message for each record
+		//for some modules the update message is disabled by default, such as the gallery images
+		var tempUpdateMessage = window[tempJSObj].disMsg;
+		window[tempJSObj].disMsg = false;
+		
+		//put form data into object
+		recordChanges[x] = window[tempJSObj].addEditModule(
+			$("#" + addEditForms[x].id + " .moduleAddEditBtn").get(0),true
+		);
+
+		//activate individual records saves again
+		window[tempJSObj].disMsg = tempUpdateMessage;
+	}
+
+	var modJSON = encodeURIComponent(JSON.stringify(recordChanges));
+	 
+	ajaxPost(
+		moduleAjax,
+		this.apiPath,
+		"function=bulkAddEdit&modData=" + modJSON, 
+		false,
+		1,
+		"application/x-www-form-urlencoded",
+		false
+	);
+	
+	/*loop through the priKeyID's and groupID's and add the returned 
+	number back to the priKeyID field and groupID field needed for bulk add's*/
+	var returnedIDs = JSON.parse(moduleAjax.responseText);
+	for(var key in returnedIDs) {
+		//priKeyID
+		$s(key).value = returnedIDs[key]["priKeyID"];
+		//groupID
+		$s(key).form.groupID.value = returnedIDs[key]["groupID"];
+	}
+	
+	//run the callback functions after the new priKeyID's are in place
+	for(var x = 0; x < formQty; x++){
+		var tempJSObj = addEditForms[x].jsObjName.value;
+		
+		//set the new priKeyID on our js object
+		window[tempJSObj].priKeyID = addEditForms[x].priKeyID.value;
+		
+		//callback function for submitting a form
+		if(window[tempJSObj].nextFunction) {
+			window[tempJSObj].nextFunction();
+		}
+	}
+	
+	//enable add/edit buttons, reset cursor
+	this.addEditComplete();
+	
+	//some modules display the completed message in the nextFunction, such as the gallery images
+	if(window[tempJSObj].disMsg == true) {
+		alert("Changes have been saved.");
+	}
+}
+
+//quickEdit - if true, editing through the module list, else adding through bulk
+stealthCommon.prototype.setupRecord = function(quickEdit,thisBtn,writeBackDOM){
+	var moduleAjax = ajaxObj();
+	moduleAjax.moduleClassName = this.moduleClassName;
+
+	//quick add/edit on public side
+	if(quickEdit === true) {
+		var tempPmpmID = this.primaryPmpmAddEditID;
+		var tmpPriKeyID = this.priKeyID;
+		moduleAjax.quickEdit = true;
+		var paramStr = "function=setupRecord&pmpmID=" + tempPmpmID + "&quickEdit=" + quickEdit + "&recordID=" + tmpPriKeyID;
+	}
+	//adding a record from within another module - example on the silver line tickets to add new leases
+	else if(quickEdit == 2) {
+		var tempPmpmID = this.primaryPmpmAddEditID;
+		var tmpPriKeyID = "addRec";
+		//priKeyID of the module opening this one
+		var parentPriKeyID = $("#" + thisBtn.form.id + " input[name='priKeyID']").val();
+		moduleAjax.quickEdit = true;
+		var paramStr = "function=setupRecord&pmpmID=" + tempPmpmID + "&quickEdit=" + quickEdit + "&recordID=" + tmpPriKeyID + "&parentPriKeyID=" + parentPriKeyID;
+	}
+	//bulk adding
+	else{
+		var tempPmpmID = this.pmpmID;
+		moduleAjax.quickEdit = false;
+		
+		//there there is a parent record ID, such as a galleryID for images
+		if(
+			$("#" + thisBtn.form.id + " input[name='parentPriKeyID']") &&
+			!isNaN($("#" + thisBtn.form.id + " input[name='parentPriKeyID']").val())
+		) {
+			var parentPriKeyID = $("#" + thisBtn.form.id + " input[name='parentPriKeyID']").val();
+			var parentPriStr = "&parentPriKeyID=" + parentPriKeyID;
+		}
+		else{
+			var parentPriStr = "";
+		}
+		
+		var paramStr = "function=setupRecord&pmpmID=" + tempPmpmID + "&quickEdit=" + quickEdit + parentPriStr;
+	}
+	
+	moduleAjax.onreadystatechange=function(){
+		if(moduleAjax.readyState===4){
+			var tempMod = JSON.parse(moduleAjax.responseText);
+
+			if(moduleAjax.quickEdit){
+				//load our form into a modal
+				//we change the ID of the modal once our module loads
+				buildModal(
+					"tempModal",
+					tempMod.DOM,
+					"#pc" + pageID,
+					true,false,
+					2,null,null,null,null,
+					"quickAddEdit"
+				);
+				
+				//insert styles		
+				//MSIE		
+				if(navigator.appVersion.indexOf("MSIE") != -1){
+					var cssCnt = document.styleSheets.length;
+					for(var c = 0; c < cssCnt; c++){
+						//ie 7 and 8 handle styleSheets differently in winxp and win7
+						//need to look for a title and update the correct one
+						if(document.styleSheets[c].title ==="moduleStyles") {
+							document.styleSheets[c].cssText = 
+							$("[title='moduleStyles']").text() + tempMod.CSS;
+						}
+					}
+				}
+				//other browsers
+				else{
+					$("[title='moduleStyles']").text(
+						$("[title='moduleStyles']").text() + tempMod.CSS
+					);
+				}
+			}
+			else{
+				//insert our DOM at the top of the record list
+				$(".moduleContainerBlk").first().after(tempMod.DOM);
+			}
+
+			//run javascript
+			eval(tempMod.JS);
+
+			//if it's a quick add/edit
+			if($s("tempModal")){
+				//change our modal ID to be the className of the module we're setting up
+				$s("tempModal").id = window[mIP.instanceProp.className].moduleClassName;
+			}
+			
+			return true;
+		}
+	}
+	
+	ajaxPost(
+		moduleAjax,
+		this.apiPath,
+		paramStr,
+		false,
+		1,
+		"application/x-www-form-urlencoded",
+		false
+	);
+}
+
+//enable add/edit buttons, reset cursor
+stealthCommon.prototype.addEditComplete = function() {
+	$("input[name='moduleAddEditBtn']").attr("disabled", false);
+	$("input[name='moduleAddEditDraftBtn']").attr("disabled", false);		
+	$('html').css('cursor','');//remove 'busy' cursor
+}
+
+//updates the innerHTML of a parent module with all the records of a child
+stealthCommon.prototype.updateParentField = function(pElID){
+	var childAjax = ajaxObj();
+	var requestParams = 'function=getConditionalRecord&a={ "0":"priKeyID","1":0,"2":"false","3":"DESC"}';
+	var winPrtEl = window.opener.document.getElementById(pElID);
+	winPrtEl.innerHTML = "";//clear parent select
+	
+	//do ajax call on this object to get the records, sort DESC so the latest one is selected
+	ajaxPost(childAjax,this.apiPath,requestParams,false,1,null,false);
+	var domElements = JSON.parse(childAjax.responseText);
+	
+	//build up parent select
+	for(var z in domElements){
+		buildParentHtml.createDOMElement(
+			"option",
+			{
+				innerHTML:domElements[z].galleryName,
+				value:domElements[z].priKeyID
+			},
+			winPrtEl
+		);
+	}
+}
+
+//load the scripts for CKEditor and CKFinder and create required instances
+stealthCommon.prototype.loadCKEditor = function(priKeyArray){
+	
+	//loose 'this' in jquery callbacks
+	var tmpObj = this;
+
+	if(this.ckEditorFieldName) {
+		//check if we have loaded CKEDITOR previously, only need to load it once
+		if(!isset("CKEDITOR")){
+			//load in ckeditor script with jquery
+			$.getScript(
+				"/ckeditor/ckeditor.js", 
+				function(){
+					//check if we've loaded a CKFinder
+					if(!isset("CKFinder")) {
+						//load CKFINDER
+						$.getScript(
+							"/ckfinder/ckfinder.js", 
+							function(){
+								//creates instances
+								tmpObj.loadCKInstance(priKeyArray);
+							}
+						);
+					}
+					else {
+						//creates instances
+						tmpObj.loadCKInstance(priKeyArray);
+					}
+
+				}
+			);
+		}
+		else{
+			//creates instances
+			tmpObj.loadCKInstance(priKeyArray);
+		}
+	}
+}
+
+//creates instances for our CKEditor and CKFinder
+stealthCommon.prototype.loadCKInstance = function(priKeyArray){
+	
+	//how many priKeyID's have to loop through
+	var recCnt = priKeyArray.length;
+
+	try{
+	for(var x = 0; x < recCnt; x++){
+	
+		//priKeyID of our module instance
+		var recPriKey = priKeyArray[x];
+		
+		//loose 'this' in jquery callbacks
+		var tmpObj = this;
+		
+		//textarea DOM object
+		var tempCKFields = this.ckEditorFieldName.split(",");
+		var tempArrayLen = tempCKFields.length;
+
+		for(var y = 0; y < tempArrayLen; y++){
+			var moduleTextArea = $s(tempCKFields[y] + recPriKey);
+
+			//delete ckeditor if the module is reloaded
+			if(
+				moduleTextArea &&
+				typeof CKEDITOR.instances[moduleTextArea.id] !== "undefined"
+			){
+				CKEDITOR.remove(CKEDITOR.instances[moduleTextArea.id]);
+			}
+
+			var tempCK = CKEDITOR.replace(moduleTextArea.id);
+			CKEDITOR.config.autoParagraph = false;
+			
+			//allow custom HTML so ckeditor doesn't try to fix/remove it for us
+			CKEDITOR.config.allowedContent = true;
+			
+			//load in our custom template file
+			CKEDITOR.config.templates_files = [
+				CKEDITOR.getUrl( 'stealthTemplate.js' )
+			];
+						
+			//load ckfinder
+			CKFinder.setupCKEditor(tempCK,'/ckfinder/');
+		}
+	}
+	}
+	catch(e){console.log("stealth error loading CKEditor" + e);}
+}
+
+stealthCommon.prototype.moduleDelete = function(recordID,thisBtn) {
+	
+	//if the record is created from the bulk entries we have a random string
+	var recordID = !isNaN(recordID) ? recordID : this.priKeyID;
+
+	var comfDel = confirm("Are you sure you want to delete this record?");
+	
+	if(comfDel) {
+		//add\edit form delete
+		if($$s("moduleDelBtn")){
+			$(thisBtn).parents(".mi").remove();
+		}
+		//module item delete
+		else if($s("moduleItemDelete" + recordID)){
+			$("#moduleItemDelete" + recordID).parent().remove();
+		}
+		//module draft item delete
+		else if($s("moduleItemDeleteDraft" + recordID)){
+			$("#moduleItemDeleteDraft" + recordID).parent().remove();
+		}
+		//module draft item delete, if both live and draft items exist.
+		else if($s("moduleItemDeleteDraftLive" + recordID)){
+			$("#moduleItemDeleteDraftLive" +  recordID).remove();
+			$("#moduleItemDraftLiveEdit" +  recordID).remove();
+		}
+
+		/*callback function for after a record is deleted
+		must be BEFORE we remove the record from the  
+		database, so we can get the file name etc...*/
+		try{this.afterModuleDel(recordID);}catch(e){}
+
+		var moduleHttp = ajaxObj();
+
+		moduleHttp.onreadystatechange=function(){
+			if(moduleHttp.readyState===4){
+				alert("The item has been removed");
+			}
+		}
+	
+		ajaxPost(
+			moduleHttp,
+			this.apiPath,
+			"function=removeLiveDraftByID&recordID=" + recordID,
+			null,
+			null,
+			null,
+			false
+		);
+		
+	}
+}
+
+//go to add/edit form for this module item in user specified language
+stealthCommon.prototype.changeModuleLng = function(){
+	upc(
+		this.addEditPageID, 
+		"recLng=" + $('#moduleItemLang').val() + "&recordID=" + $('input[name="priKeyID"]').val()
+	);
+	return true;
+}
+
+//go to a specific pagination page
+//refreshPag if we want to refresh the pagination - doesn't work on level 2 modules
+stealthCommon.prototype.paginateModule = function(
+	requestParams,thisDiv,thisPagPage,refreshPag,historyTrack
+){
+	var refreshPag=isset(refreshPag)?refreshPag:false;
+	var pagAjax = ajaxObj();
+	var pagNums = $(".pgc-" + this.moduleClassName);
+	var historyTrack = isset(historyTrack)?historyTrack:true;
+	
+	//remove the clicked class from the pagination link
+	$(".pgc-" + this.moduleClassName).removeClass("pgcClicked");
+	
+	//set the recently clicked pag-page link
+	if(thisDiv) thisDiv.className = thisDiv.className + " pgcClicked";
+	
+	//went directly to a pagination page
+	if(thisPagPage) this.pagPage = thisPagPage;
+	
+	/*make our object properties, properties of the ajax  
+	object so we can access them in the ajax repsonse*/
+	pagAjax.moduleClassName = this.moduleClassName;
+	pagAjax.pagAjax = requestParams;
+	pagAjax.refreshPag = refreshPag;
+	pagAjax.requestParams = requestParams;
+	pagAjax.moduleID = this.moduleID;
+	pagAjax.instanceID = this.instanceID;
+	pagAjax.afterPaginate = this.afterPaginate;
+	pagAjax.historyTrack = historyTrack;
+	pagAjax.afterPaginate = this.afterPaginate;
+	
+	pagAjax.onreadystatechange=function(){
+		if(pagAjax.readyState===4){
+			
+			var tempMod = JSON.parse(pagAjax.responseText);
+						
+			if(
+				//regular pagination
+				$s("mfp-" + pagAjax.moduleClassName) || 
+				//login module
+				pagAjax.moduleID == 37
+			){
+				$s("mfmcc-" + pagAjax.moduleClassName).innerHTML = tempMod.DOM;
+				
+				//run javascript
+				eval(tempMod.JS);
+				
+				//for now, only for the login module
+				if(pagAjax.moduleID == 37){
+					/*append our styles, right now its primary used
+					for nav styleing differences on silver line
+					-so it would seem we should NOT be using the title attribute on the style tag
+					for our jquery selector, we will make sure to keep our pagnation tag as the 3rd tag */				
+					if(navigator.appVersion.indexOf("MSIE") != -1){
+						//ie 7 and 8 handle styleSheets differently in winxp and win7
+						//need to look for a title and update the correct one
+						document.styleSheets[2].cssText = tempMod.STYLES;
+					}
+					else{
+						$("#pagStyles").text(tempMod.STYLES);
+					}
+				}
+
+				if(typeof pagAjax.afterPaginate !== "undefined"){
+					try{ 
+						//this.afterPaginate can be a string of a function object
+						if(typeof pagAjax.afterPaginate === "string"){
+							(new Function(pagAjax.afterPaginate))();
+						}
+						else{
+							pagAjax.afterPaginate();
+						}
+					}
+					catch(e){
+						//Account for a possible error, maybe call default...
+					}
+				}
+			}
+			//using history from a page without the paginate container. do upc instead
+			else{
+				var pgID = getParameterByFromString("pageID",thisDiv);//get pageID from requestParams
+				//update page without history, since its the paginate we want in the history
+				//upc(pgID,pagAjax.requestParams,false);
+				upc(prevPage,pagAjax.requestParams,false);
+			}
+			
+			/*refresh the pagination - doesn't work on level 2 modules
+			put in the pagAjax because we set a session variable on that 
+			ajax request that our pagination refresh uses*/
+			if(pagAjax.refreshPag){
+				var pagNavAjax = ajaxObj();
+				
+				//attach the class name to the ajax obj so we can use it in the onreadystatechange function
+				pagNavAjax.moduleClassName = pagAjax.moduleClassName;
+				
+				pagNavAjax.onreadystatechange=function(){
+					//don't need to do if we're doing a upc
+					if($s("mfp-" + pagAjax.moduleClassName)){
+						if(pagNavAjax.readyState===4) $s("mfp-" + pagAjax.moduleClassName).innerHTML = pagNavAjax.responseText;
+					}
+				}
+				
+				ajaxPost(
+					pagNavAjax,
+					"/public/moduleFrame/modulePaginate.php",
+					pagAjax.requestParams,
+					true,
+					0,
+					null,
+					0
+				);
+			}
+		}
+	}
+			
+	//regular pagination
+	if(document.getElementById("mfmcc-" + pagAjax.moduleClassName)){
+		ajaxPost(
+			pagAjax,
+			"/public/moduleFrame/moduleInstanceSet.php",
+			pagAjax.requestParams,
+			true,
+			0,
+			null,
+			pagAjax.historyTrack
+		);
+	}
+	//using history from a page without the paginate container. do upc instead
+	else{
+		if(!isset("tempParams")) {
+			tempParams = "";
+		}
+		document.location = document.URL + "/" + tempParams;
+		location.reload();
+		return true;
+	}
+}
+
+//go up/down a pagination page
+stealthCommon.prototype.nextPrevPagPage = function(pagePageDir,requestParams){
+
+	//next page
+	if(pagePageDir && (parseInt(this.pagPage) < parseInt(this.maxPagPage))){
+		this.pagPage++;
+		requestParams = repSubstr(
+            requestParams,'%22pagPage%22%3A%22ppToken%22','"pagPage":"' + this.pagPage + '"'
+        );
+		
+		window[this.moduleClassName].paginateModule(
+			requestParams,
+			$s("pgc-" + this.moduleClassName + "-" + this.pagPage),
+			this.pagPage,
+			false,
+			true
+		);
+	}
+	//previous page
+	else if(!pagePageDir && (parseInt(this.pagPage)-1 > 0)){
+		this.pagPage--;
+		requestParams = repSubstr(
+            requestParams,'%22pagPage%22%3A%22ppToken%22','"pagPage":"' + this.pagPage + '"'
+        );
+		
+		window[this.moduleClassName].paginateModule(
+			requestParams,
+			$s("pgc-" + this.moduleClassName + "-" + this.pagPage),
+			this.pagPage,
+			false,
+			true
+		);
+	}
+
+}
+
+//show the desired pagination page links
+stealthCommon.prototype.nextPrevPages = function(pagePageDir){
+	
+	//get the first visible page link
+	var firstEl = $(".pgc.pgcVisible").first();
+	//get the last visible page link
+	var lastEl = $(".pgc.pgcVisible").last();
+	
+	//hide all the page links
+	$(".pgc").removeClass("pgcVisible").addClass("pgcHidden");		
+			
+	//show next set of page links
+	if(pagePageDir) {		
+		//show the paginateLinkQty qty of siblings for lastEl element
+		for(var x = 1; x <= this.paginateLinkQty; x++){
+			$(lastEl).next().removeClass("pgcHidden").addClass("pgcVisible");
+			lastEl = $(lastEl).next();
+		}
+	}
+	else{
+		//show the paginateLinkQty qty of siblings for lastEl element
+		for(var x = 1; x <= this.paginateLinkQty; x++){
+			$(firstEl).prev().removeClass("pgcHidden").addClass("pgcVisible");
+			firstEl = $(firstEl).prev();
+		}
+	}
+	
+	//get the first visible page link
+	var firstEl = $(".pgc.pgcVisible").first();
+	//get the last visible page link
+	var lastEl = $(".pgc.pgcVisible").last();
+
+	//check to see if we should hide or show the next/previous buttons
+	if($(firstEl).prevAll(".pgc").length < 1){
+		$s("mfprvi-" + this.moduleClassName).style.display = "none";
+	}
+	else{
+		$s("mfprvi-" + this.moduleClassName).style.display = "block";
+	}
+	
+	if($(lastEl).nextAll(".pgc").length < this.paginateLinkQty){
+		$s("mfni-" + this.moduleClassName).style.display = "none";
+	}
+	else{
+		$s("mfni-" + this.moduleClassName).style.display = "block";
+	}
+}
+
+//modules items be click slid should be float:left position:relative
+stealthCommon.prototype.clickSlide = function(slideDir,childSlideClass,thisThumb){
+
+	if(this.slideFinished){
+		this.slideFinished = false;	
+		//main module frame				
+		var mf = $s("mfmcc-" + this.moduleClassName); 
+		//storage container
+		var ms = $s("clss-" + this.moduleClassName); 
+		//current visible objects
+		var cObjs = $("#mfmcc-" + this.moduleClassName + " .mi-" + this.moduleClassName); 
+		//objects in storage
+		var stObjs = $("#clss-" + this.moduleClassName + " .mi-" + this.moduleClassName); 		
+		var tempModClass = this.moduleClassName;
+		var tempModChildClass = childSlideClass;
+		var tempChangeEffectDuration = this.changeEffectDuration;
+		var tempEffectEasing = this.effectEasing;
+
+		if(this.slideAxis == 0){
+			//the base of where our new elements are positioned, and how far they slide				
+			var slideDistance = mf.offsetWidth;
+			
+			//distance left or right
+			if(slideDir) slideDistance = slideDistance * -1;
+			
+			//we're always accessing the first item, since we're removing them
+			for(var i = 0; i < this.holdQty; i++){
+				//create temp objs if stObjs is empty
+				if(!stObjs[0]){
+				
+					//properties of temp dom object
+					var tID = this.moduleClassName + "tmpObj" + i;
+					var tClass = cObjs[i].className + " tmpObj";
+					
+					//create DOM object with jquery
+					var tmpSObj = $('<div class="' + tClass + '" id="' + tID + '"></div>');
+					tmpSObj = tmpSObj.get(0);
+				}
+				else if(slideDir) {
+					tmpSObj = stObjs[0];
+				}
+				else {
+					tmpSObj = stObjs[stObjs.length-1];
+				}
+				
+				//style of the object we're sliding
+				var tSt = tmpSObj.style; 
+
+				if(slideDir){
+					tSt.position = "absolute";
+					tSt.top = cObjs[i].offsetTop - parseInt(cObjs.eq(i).css("marginTop")) + "px";
+					//how far it should be offset
+					tSt.left = mf.offsetWidth + cObjs[i].offsetLeft  - parseInt(cObjs.eq(i).css("margin-left")) + "px"; 
+					//place the element in the module frame
+					mf.appendChild(tmpSObj); 
+				}
+				else{
+					tSt.position = "absolute";
+					tSt.top = cObjs[i*2].offsetTop - parseInt(cObjs.eq(i*2).css("marginTop")) + "px";
+					//how far it should be offset
+					var tempoffsetLeft = cObjs[i*2].offsetWidth + cObjs[i*2].offsetLeft + parseInt(cObjs.eq(i*2).css("margin-left"));
+
+					tSt.left = (tempoffsetLeft * -1) + "px";
+					
+					//place the element in the module frame
+					mf.insertBefore(tmpSObj,cObjs[0]); 
+				}
+				
+				var cObjs = $("#mfmcc-" + this.moduleClassName + " .mi-" + this.moduleClassName); 
+				var stObjs = $("#clss-" + this.moduleClassName + " .mi-" + this.moduleClassName);	
+				//thumb equivalent obj
+				var tObjs = $("#mfmcc-" + this.childClassName + " .mi-" + this.childClassName); 
+				
+				//visible element's priKeyID from id attr
+				var tmpSObjPriKeyID = tmpSObj.id.substring(tmpSObj.id.lastIndexOf("-")+1,tmpSObj.id.length);
+				
+				//look for current element's equivalent in thumb mfmc and set its selected class
+				for(var t = 0; t < tObjs.length; t++){
+					tObjs[t].className = repSubstr(tObjs[t].className,"clicked","");
+					if(tObjs[t].id.indexOf(tmpSObjPriKeyID) != -1) {
+						tObjs[t].className = tObjs[t].className + " clicked";
+					}
+				}
+			}	
+
+			/*when we are doing multiple images at once, the callback of the first ones
+			  finish before the later effects even start. use use this counter to keep track 
+			  of where we're at so we can do what we need in the callback on the last effect*/
+			var tempCount = tempHq = this.holdQty * 2;
+
+			for(var b = 0; b < tempHq; b++){
+				if(cObjs[b]){
+					cObjs.eq(b).animate(
+						{left:"+=" + slideDistance},
+						{
+							//why doesn't this work without eval? - jared
+							duration:eval(tempChangeEffectDuration),
+							easing:eval(tempEffectEasing),
+							complete:function(){
+								tempCount--; //counter to keep track of what effect we're on
+								
+								if(!tempCount){ //reset styling, push elements back into storage
+									var cObjs = $("#mfmcc-" + tempModClass + " .mi-" + tempModClass); 
+									var stObjs = $("#clss-" + tempModClass + " .mi-" + tempModClass);
+
+									for(var s = 0; s < tempHq; s++){
+										//elements going into storage
+										if(s < window[tempModClass].holdQty){
+											if(slideDir){
+												var tempCoStyle = cObjs[0].style;
+												tempCoStyle.top = tempCoStyle.right = tempCoStyle.left = "auto";
+												tempCoStyle.position = "relative";
+												ms.appendChild(cObjs[0]);
+											}
+											else{
+												var thisObjLoc = cObjs.length-1;
+												var tempCoStyle = cObjs[thisObjLoc].style;
+												tempCoStyle.top = tempCoStyle.right = tempCoStyle.left = "auto";
+												tempCoStyle.position = "relative";
+												
+												//the storage container might be empty if the holdQty is the 
+												//same as the number of elements in the storage container
+												if(stObjs[0]) {
+													ms.insertBefore(cObjs[thisObjLoc],stObjs[0]);														
+												}
+												else {
+													ms.appendChild(cObjs[thisObjLoc]);
+												}
+											}
+											var cObjs = $("#mfmcc-" + tempModClass + " .mi-" + tempModClass); 
+											var stObjs = $("#clss-" + tempModClass + " .mi-" + tempModClass);
+										}
+										//visible items
+										else{
+											var thisObjLoc = s-window[tempModClass].holdQty;
+											var tempCoStyle = cObjs[thisObjLoc].style;
+									
+											tempCoStyle.top = tempCoStyle.right = tempCoStyle.left = "auto";
+											tempCoStyle.position = "relative";
+											//last item
+											if(s===tempHq-1){
+												window[tempModClass].slideFinished = true;
+												//if a child thumb nail is clicked
+												if(tempModChildClass) {
+													window[tempModChildClass].parentSlide(thisThumb);
+												}
+											}
+										}
+									}//loop through pushing hidden elements
+								}//counter for what effect we're on																						
+							}//jquery call back function
+						}//jquery animate options
+					);//jquery animate effect
+				}//if the element exists
+				else break;
+			}//if element in for loop exists
+		}//for loop
+	}//if slideFinished
+} //clickSlide function closer
+	
+stealthCommon.prototype.parentSlide = function(thisDiv){
+
+	var tempClass = $(".mfmcc").find('div[id*="mfmcc-' + this.parentClassName + '"]');
+		/*.parents(".mfmc") //get this elements root .mfmc
+		.prev(".mfmc") // get the parent of the parentClassName, must be the parents prev sibling
+		.find('div[id^="mfmcc-' + this.parentClassName + '"]'); //and get the parenClassName container*/
+		
+	var tempParentElement = tempClass.get(0).id;
+	var tempParentClassName = repSubstr(tempParentElement,"mfmcc-","");
+
+	var parentItem = $s(repSubstr(thisDiv.id,this.moduleClassName,tempParentClassName));
+	var parentFrame = $s("mfmcc-" + tempParentElement);
+
+	//clear thumb click style			
+	var thisThumbs = $(".mi-" + this.moduleClassName); 
+	var thumbQty = thisThumbs.length;
+	
+	$(parentFrame).find(".clicked").removeClass("clicked");
+	$(thisDiv).addClass("clicked");
+	
+	//check if the correct item is in its parent
+	if(parentItem.parentNode.id !== "mfmcc-" + tempParentClassName) {
+		window[tempParentClassName].clickSlide(1,this.moduleClassName,thisDiv);
+	}
+}
+//fadeDir - order of elements to fade through
+stealthCommon.prototype.fadeRotate = function(fadeDir){
+	//try/catch is primarily incase we're in mid fade when we change pages
+	try{
+		if(this.slideFinished){
+			this.slideFinished = false;		
+			var mf = $s("mfmcc-" + this.moduleClassName); //main module frame
+			var ms = $s("clss-" + this.moduleClassName); //storage container
+			var cObjs = $("#mfmcc-" + this.moduleClassName + " .mi-" + this.moduleClassName); //current visible objects
+			var stObjs = $("#clss-" + this.moduleClassName + " .mi-" + this.moduleClassName); //objects in storage
+			var tempModClass = this.moduleClassName;
+			var tempChangeEffectDuration = this.changeEffectDuration;
+			var tempEffectEasing = this.effectEasing;
+			if(stObjs.length === 0) return true;
+			//make the child transparent and give it the same positioning 
+			//properties as the element currently in the module container
+			for(var x = 0; x<this.holdQty; x++){
+				var sCnt = fadeDir ? 0 : stObjs.length+x-this.holdQty;
+							
+				//if there are more items in the cObj than the stObj we need to make place holder items
+				if(!isset(stObjs[sCnt]))
+					var newAppend = buildHtml.createDOMElement(
+						"div",
+						{
+							className:cObjs[x].className + " tmpObj",
+							id:this.moduleClassName + "tmpObj" + x
+						}
+					);
+				else {
+					var newAppend = stObjs[sCnt];		
+					newAppend.style.opacity = 0;
+					newAppend.style.position = 'absolute';
+					newAppend.style.left = $(cObjs[x]).position().left + "px";
+					newAppend.style.top = $(cObjs[x]).position().top + "px";
+				}
+	
+				mf.appendChild(newAppend);//append it in the container
+	
+				//jquery doesn't use live references like native getElementByClassName
+				//once MSIE 9 is the lowest we support, change to getElementByClassName
+				cObjs = $("#mfmcc-" + this.moduleClassName + " .mi-" + this.moduleClassName); 
+				stObjs = $("#clss-" + this.moduleClassName + " .mi-" + this.moduleClassName);
+			}
+			
+			var tempHq = this.holdQty;
+			var tempCount = this.holdQty;
+			
+			//effect type
+			if(this.instanceDisplayType == 0){
+				var transEff = "fadeTo";
+				var newElFrom = 0;
+				var oldElTo = 0;
+				var newElTo = 1;
+				var oldElFrom = 1
+			}
+					
+			for(var x = 0; x<this.holdQty; x++){
+				
+				//thumb equivalent obj
+				var tObjs = $("#mfmcc-" + this.childClassName + " .mi-" + this.childClassName); 			
+				//visible element's priKeyID from id attr
+				var cObjPriKeyID = cObjs[this.holdQty + x].id.substring(cObjs[this.holdQty + x].id.lastIndexOf("-")+1,cObjs[this.holdQty + x].id.length);
+
+				//look for current element's equivalent in thumb mfmc and set its selected class
+				for(var t = 0; t < tObjs.length; t++){
+					tObjs[t].className = repSubstr(tObjs[t].className,"clicked","");
+					
+					//get the id of this module items thumbnail
+					var tempThumbID = repSubstr(
+						cObjs[this.holdQty + x].id,
+						this.moduleClassName,
+						this.childClassName
+					);
+					
+					if(tempThumbID == tObjs[t].id) {
+					//if(tObjs[t].id.indexOf(cObjPriKeyID) != -1) {
+						tObjs[t].className = tObjs[t].className + " clicked";
+					}
+				}
+				
+				//for some unknown reason the tempChangeEffectDuration needs eval or it doesn't work? - jared
+				cObjs.eq(this.holdQty + x)[transEff](
+					eval(tempChangeEffectDuration),
+					newElTo,
+					tempEffectEasing,
+					function(effect){
+						try{
+							$(this).css({left:"",top:"",position:"",opacity:""});
+						}
+						catch(e){}
+					});
+				cObjs.eq(x)[transEff](
+					eval(tempChangeEffectDuration),
+					oldElTo,
+					tempEffectEasing, 
+					function(effect){
+						//try/catch is primarily incase we're in mid fade when we change pages
+						try{
+							tempCount--;
+							//we need place this item into storage
+							//if its the last one move faded into storate
+							//if its a tmpObj, delete it
+							if(!tempCount){
+								for(var z = 0; z<tempHq; z++){
+									var cObjs = $("#mfmcc-" + tempModClass + " .mi-" + tempModClass);
+									var stObjs = $("#clss-" + tempModClass + " .mi-" + tempModClass);
+		
+									if(fadeDir) ms.appendChild(cObjs[0]);
+									else{
+										if(stObjs[0]) ms.insertBefore(cObjs[0],stObjs[z]);
+										else ms.appendChild(cObjs[0]);
+									}
+									var cObjs = $("#mfmcc-" + tempModClass + " .mi-" + tempModClass);
+									var stObjs = $("#clss-" + tempModClass + " .mi-" + tempModClass);										
+								}
+							}
+							
+							window[tempModClass].slideFinished = true;
+							}
+						catch(e){
+						}
+					}//callback
+				);//effect
+			}//for loop
+		}//if our previous effect is finised
+	}//try/catch
+	catch(e){
+	}
+}
+
+stealthCommon.prototype.parentFade = function(thisDiv){
+	
+	var tempClass = $("body").find('div[id*="mfmcc-' + this.parentClassName + '"]');
+		
+	var tempParentElement = tempClass.get(0).id;
+	var parentDiv = tempClass.get(0);
+	
+	//gets the parent class name even if its a level 2 or greater module
+	var tempParentClassName = repSubstr(tempParentElement,"mfmcc-","");
+	var parentItem = $s(repSubstr(thisDiv.id,this.moduleClassName,tempParentClassName));
+
+	//parent module JS object
+	var po = window[tempParentClassName]; 
+
+	if(po.slideFinished){
+		po.slideFinished = false;
+				
+		//main module frame
+		var mf = $s("mfmcc-" + tempParentClassName); 
+		//storage container
+		var ms = $s("clss-" + tempParentClassName); 
+		
+		var tempClassName = this.moduleClassName;
+				
+		//current visible objects
+		var cObjs = $("#mfmcc-" + tempParentClassName + " .mi-" + tempParentClassName); 
+		
+		//objects in storage
+		var stObjs = $("#clss-" + tempParentClassName + " .mi-" + tempParentClassName); 
+
+		//if the desired image isn't the one already been displayed or currently fading in
+		if($("#mfmcc-" + tempParentClassName).has("#" + parentItem.id).length == 0){
+
+			//backup the declared position of the element
+			po.tempPos = $(cObjs[0]).css("position");
+			po.tempLeft = $(cObjs[0]).css("left");
+			po.tempRight = $(cObjs[0]).css("right") ;
+			po.tempTop = $(cObjs[0]).css("top");
+			po.tempBottom = $(cObjs[0]).css("bottom");
+
+			parentItem.style.opacity = 0;
+			parentItem.style.position = "absolute";
+			parentItem.style.left = $(cObjs[0]).position().left + "px";
+			parentItem.style.right = $(cObjs[0]).position().right + "px";
+			parentItem.style.top = $(cObjs[0]).position().top + "px";
+			parentItem.style.bottom = $(cObjs[0]).position().bottom + "px";
+
+			/*insertCurrent - the location in the storage that we are placing the previous div
+			  this.currIndex - the location that the now visible one belongs in the storage
+			  figure out the index of the item currently being displayed in the parent*/
+			if(!isset(po.currIndex)) {
+				po.currIndex = 0;
+			}
+				
+			//loop through the storage to find out the index of our desired item
+			var tempStorLen = stObjs.length;
+			for(var x = 0; x < tempStorLen; x++){
+				if(stObjs[x].id === parentItem.id){
+					po.currIndex = x;
+					break;
+				}
+			}
+			
+			//append it in the container
+			mf.appendChild(parentItem); 
+			
+			//jquery doesn't use live references like native getElementByClassName
+			//once MSIE 9 is the lowest we support, change to getElementByClassName
+			cObjs = $("#mfmcc-" + tempParentClassName + " .mi-" + tempParentClassName); 
+			stObjs = $("#clss-" + tempParentClassName + " .mi-" + tempParentClassName);
+
+			var tempHQ = po.holdQty;
+			
+			//clear thumb click style
+			$(".mi-" + this.moduleClassName).removeClass("clicked"); 
+			$(thisDiv).addClass("clicked");
+			
+			//reference the jquery object, not the DOM object
+			for(var x = 0; x<tempHQ; x++){
+				//needs square brackets for the object params
+				cObjs.eq(po.holdQty + x).fadeTo(
+					eval(this.changeEffectDuration),
+					1,
+					eval(this.effectEasing),
+					function(){
+						//restore the position of the element that faded in
+						this.style.position = po.tempPos;
+						this.style.left = po.tempLeft;
+						this.style.right = po.tempRight;
+						this.style.top = po.tempTop;
+						this.style.bottom = po.tempPos;
+					}
+				);
+				cObjs.eq(x).fadeTo(
+					eval(this.changeEffectDuration),
+					0,
+					eval(this.effectEasing),
+					function(){
+						ms.appendChild(this);
+						
+						//prevents thumb controls and parent left/right from getting out of sync
+						this.style.display = "block";						
+
+						//place all the children before the selected one 
+						//behind it so the left/right arrows still work
+						for(var y = 0; y < po.currIndex; y++) {
+							ms.appendChild(stObjs[0 + y]);
+						}
+						po.slideFinished = true;
+					}
+				);
+			}
+		}
+		else{
+			po.slideFinished = true;
+		}
+	}
+}
+
+stealthCommon.prototype.disQtyChange = function(thisSelect, urlParams){
+	
+	//get the qty the user wants to see
+	var tmpDspQty = $(thisSelect).val();
+
+	//add the display qty to the params if it isn't in there
+	if(urlParams.indexOf("displayQty") === -1){
+		urlParams = repSubstr(urlParams, 'ppToken%22', 'ppToken%22,%22displayQty%22:' + tmpDspQty);
+	}
+
+	//update the display qty to what the user selected
+	urlParams = urlParams.replace(/(displayQty"):\d+/gm,"$1:" + tmpDspQty);
+
+	atpto_adminTopNav.toggleBlind(
+		pageID,
+		true,
+		'upc(' + pageID + ',\'' + urlParams + '\');',
+		'ntid_adminTopNav' + pageID
+		,""
+	);
+}
+
+//add another record from the add/edit form
+stealthCommon.prototype.addAnother = function(modPageID, modParams){
+	
+	var conf = confirm("Do you want to add another? Unsaved changes will be lost");
+	
+	if(conf){
+		if(isset(this.isModOnline)) {
+			var onlineCheck = this.isModOnline;
+		}
+		//not specified by the module, check for connectivity
+		else{
+			var onlineCheck = this.isOnline();
+		}
+
+		if(onlineCheck){
+			upc(modPageID,modParams);
+		}
+		else{
+			document.location = "/index.php?pageID=" + modPageID + modParams;
+		}
+	}
+	else{
+		return false;
+	}
+	
+}
+
+//submit user rating vote, value is the rating value
+stealthCommon.prototype.moduleRating = function(value){
+	
+	var rateAjax = ajaxObj();
+	var moduleParams = "function=addRating&v=" + value + "&r=" + this.priKeyID + "&m=" + this.moduleID;
+	
+	rateAjax.onreadystatechange=function(){
+		if(rateAjax.readyState===4){
+			
+			//return -1 if the user has already voted
+			if(rateAjax.responseText == -1){
+				alert("Only one vote per item");
+			}
+		}
+	}
+	
+	//send request
+	ajaxPost(
+		rateAjax, //XMLHTTPRequest Object
+		"/cmsAPI/module/moduleRecordRating.php", //API Path
+		moduleParams, //url params
+		true, //async
+		0, //GET
+		false, //text/html
+		false //track history
+	);
+}
+
+stealthCommon.prototype.getGalleryImages = function(){
+	var galID = $("#" + this.formID + " select[name=imageGalleryID]").val();
+	var galleryAjax = ajaxObj();
+	
+	//attach the formID so we can use it in our ajax callback
+	galleryAjax.formID = this.formID;
+    
+	galleryAjax.onreadystatechange=function(){
+		if(galleryAjax.readyState==4) {
+			var imgObj = JSON.parse(galleryAjax.responseText);
+			$("#" + this.formID + " select[name=galleryImageID]").text("");
+
+			//update our select with new provinces and states
+			for(var z in imgObj){
+				var optionAtt = imgObj[z]["imgCaption"];
+                var optionVal = imgObj[z]["priKeyID"];
+				
+				$('<option>').val(optionVal).text(optionAtt).appendTo("#" + galleryAjax.formID + " select[name=galleryImageID]");
+			}
+		}
+	}
+	
+	var requestParams = 'function=getConditionalRecord&a={ "0":"galleryID","1":"' + galID + '","2":"true"}';
+	
+	ajaxPost(
+		galleryAjax,
+		"/cmsAPI/gallery/galleryImages.php",
+		requestParams,
+		true,
+		0,null,false
+	);	
+
+}
+
+function showTimePicker(timeField){
+	//destroy any existing instances
+	$(timeField).scroller('destroy');
+	
+	//create a new scroller that fits well for the window size
+	$(timeField).scroller({
+		preset: 'time',
+		mode: "scroller",
+		display: "modal",
+		width:$(window).width()*0.25,
+		height:$(window).height()*0.20,
+		stepMinute:15
+	});
+	
+	//display the scroller
+	$(timeField).mobiscroll('show');
+}
+
+//get the url param from a string
+function getParameterByFromString(name,urlParamString){
+	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+	var regexS = "[\\?&]" + name + "=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var results = regex.exec(urlParamString);
+	if(results == null)  return "";
+	else return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function clearField(textField){
+	if(textField.defaultValue == textField.value) textField.value = "";
+}
+
+function backToDefault(textField){
+	if(textField.value == "") textField.value = textField.defaultValue;
+}
+
+//adds onfocus and onblur event handlers to all text fields within an element which call the functions: "clearField" and "backToDefaut" respectively
+function activateShowHideFields(elID){
+	var inputs = $s(elID).getElementsByTagName("input");
+	var textareas = $s(elID).getElementsByTagName("textarea");
+	for(var i = 0; i < inputs.length; i++){
+		if(inputs[i].type == "text"){
+			inputs[i].onfocus = function(){
+				clearField(this);
+			}
+			inputs[i].onblur = function(){
+				backToDefault(this);
+			}
+		}
+	}
+	for(var i = 0; i < textareas.length; i++){
+		textareas[i].onfocus = function(){
+			clearField(this);
+		}
+		textareas[i].onblur = function(){
+			backToDefault(this);
+		}
+	}
+}
+
+function getProvStates(provStateFieldID,countryFieldID){
+	var provAjax = ajaxObj();
+	var countryCode = $s(countryFieldID).value;
+	provAjax.provStateFieldID = provStateFieldID;
+	
+	provAjax.onreadystatechange=function(){
+		//clear out existing provinces and states
+		$s(provAjax.provStateFieldID).innerHTML = "";
+		
+		if(provAjax.readyState===4){
+			var provObj = JSON.parse(provAjax.responseText);
+			
+			//update our select with new provinces and states
+			for(var z in provObj){	
+				//create DOM object with jquery
+				var tmpSObj = $("#" + provAjax.provStateFieldID).append('<option id="provState' + provObj[z]["priKeyID"] + '" value="' + provObj[z]["priKeyID"] + '">' + provObj[z]["provState"] + '</option>');
+			}
+		}	
+	}
+	
+	/*fetch provinces and states for selected country - pass JSON to become php array
+	the cart uses the countryCode, the users module uses the countryID... determine which param to use*/
+	if(isNumeric(countryCode)) var queryField = "countryID";
+	else var queryField = "countryCode";
+
+	var requestParams = 'function=getConditionalRecord&a={ "0":"' + queryField + '","1":"' + countryCode + '","2":"true"}';	
+	ajaxPost(provAjax,"/cmsAPI/location/provState.php",requestParams,true,0,null,false);
+}
+
+function detectIE() {
+    var ua = window.navigator.userAgent;
+
+    var msie = ua.indexOf('MSIE ');
+    if (msie > 0) {
+        // IE 10 or older => return version number
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
+
+    var trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+        // IE 11 => return version number
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
+
+    var edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+       // IE 12 => return version number
+       return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
+
+    // other browser
+    return false;
+}
+
+function setGalleryFancyBox(){
+	$('.fancyBoxLink').fancybox({
+		openEffect	: 'none',
+		closeEffect	: 'none',
+		showNavArrows : true,
+		opacity: true
+	});
+}
