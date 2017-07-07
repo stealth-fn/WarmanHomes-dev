@@ -1,0 +1,5 @@
+//ckEditor object
+
+function setPropertyTypeAddEdit() {
+	
+}
