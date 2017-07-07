@@ -1,0 +1,37 @@
+#productCategoryContainer{
+	position:relative;
+	height:auto;
+	width:100%;
+	overflow:auto;
+}
+
+#prodCatOutter{
+	position:relative;
+	float:right;
+	display:block;
+	width:33%;
+	height:200px;
+	background-color:#FFF;
+	border:thin;
+	border-style:solid;
+}
+
+#prodCatInner{
+	position:relative;
+	top: 5px;
+	left:5px;
+	width:92%;
+	height:92%;
+	background-color:#FFF;
+	border:thin;
+	border-style:solid;
+}
+
+#prodCatName{
+	position:absolute;
+	bottom: 25px;
+	width:100%;
+	font-size:18px;
+	font-family:Verdana, Geneva, sans-serif;
+	text-align:center;
+}

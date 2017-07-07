@@ -1,0 +1,46 @@
+.faqAns{
+	position:absolute;
+	height:500px;
+	width:500px;
+	top:63px;
+	right:79px;
+}
+
+.faqQuestion{
+	cursor:pointer;
+	margin: 0px;
+	font-size:11px;
+	z-index:100;
+	width:241px;
+	height:19px;
+	border-bottom:thin;
+	border-bottom-style:solid;
+	border-bottom-color:#666;
+	position:relative;
+	right:50px;
+	text-align:left;
+	vertical-align:middle;
+	padding-top:8px;
+	color:#FFF;
+	text-decoration:none;
+	font-family:Myriad Pro;
+	position:relative;
+	top:63px;
+}
+
+.faqQuestion:active{
+	background-image:url(/images/spotlight-sport-wear-onclick-side-nav.png);
+	background-position:top center;
+	background-repeat:no-repeat;
+}
+
+.faqQuestion:hover{
+	background-image:url(/images/spotlight-sport-wear-faqs-onclick.png);
+	background-position:top center;
+	background-repeat:no-repeat;
+}
+
+
+#faqQuestion9{
+	border:none;
+}

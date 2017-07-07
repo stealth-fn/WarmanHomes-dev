@@ -1,0 +1,19 @@
+#mfmc-pageSearchResults{
+	clear: both;
+    float: left;
+}
+
+.mi-pageSearchResults{
+	margin-bottom:25px;
+}
+
+.pageContentSearchResult{
+	margin-top:5px;
+	margin-left:5px;
+	margin-bottom:5px;
+}
+
+.viewPage a{
+	font-size:11px;
+	margin-left:5px;
+}

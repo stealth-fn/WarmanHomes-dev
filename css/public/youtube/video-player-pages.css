@@ -1,0 +1,84 @@
+#videoContainer{
+
+	width:575px;
+
+	height:355px;
+
+	position:absolute;
+
+	top:200px;
+
+	left:140px;
+
+	/*background-image:url(/images/Web-Design-Saskatoon-youtube-social-media-background.png);*/
+
+	overflow:visible;
+
+}
+
+
+
+#vidButtons{
+
+	position:absolute;
+
+	bottom:50px;
+
+	left:34px;
+
+	width:477px;
+
+	height:20px;
+
+	overflow:visible;
+
+}
+
+
+
+#ytPlayer{
+
+	position:absolute;
+
+	top:25px;
+
+	left:70px;
+
+}
+
+
+
+#playerPause{
+
+	position:absolute;
+
+	top:25px;
+
+	left:70px;
+
+	width:407px;
+
+	height:250px;
+
+	background-position:center;
+
+	background-repeat:no-repeat;
+
+	cursor:pointer;
+
+}
+
+
+
+.youtubeVideoBtn{
+
+	float:left;
+
+	position:relative !important;
+
+	margin-left:20px;
+
+}
+
+
+

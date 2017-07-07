@@ -1,0 +1,322 @@
+/**bulk addEdit**/
+.moduleContainerBlk {
+    height: 21px;
+    padding-left: 50px;
+    padding-top: 0 !important;
+    position: relative;
+    width: 10000px !important;
+}
+
+.pcpy > .mfmc > .mfmcc {
+    overflow-x: scroll;
+    padding-bottom: 25px;
+    padding-top: 110px;
+    position: relative;
+}
+.pcpy {
+    max-width: 100% !important;
+}
+
+.moduleContainerBlk .moduleAddEditBtn{
+    bottom: 0;
+    left: 0;
+    position: absolute;
+	width:16px;
+	height:16px;
+	background:url(/images/admin/checkmark.png) transparent;
+	/*background-size:contain;*/
+	border:none;
+	font-size:0px;
+	margin:0px;
+}
+
+.moduleContainerBlk .moduleDelBtn{
+    border: medium none;
+    bottom: 0;
+    color: #FF0000;
+    font-size: 18px;
+    font-weight: 600;
+    height: 20px;
+    left: 30px;
+    line-height: 16px;
+    position: absolute;
+    text-align: center;
+    width: 16px;
+}
+
+.moduleContainerBlk:first-child{
+}
+#mfmc-adminStandardLogin .bulkAll, #mfmc-adminStandardLogin .addRec {
+    display: none;
+}
+
+.moduleContainerBlk form[name="moduleForm"] > div{
+    float: left;
+    min-width: 120px;
+    position: relative;
+	height:21px;
+}
+
+.moduleContainerBlk form[name="moduleForm"] div > label,
+.checkBoxGroup, .toggleOptions, .bulkHide, .buttonAddSmall{
+	display:none;
+}
+
+.moduleContainerBlk .currentFile {
+    overflow: hidden;
+    width: 300px;
+}
+
+.addSubModBtn {
+    background-color: #1c1c1c;
+    border: 1px solid #fff;
+    color: #fff;
+    display: inline-block;
+    height: 21px !important;
+    line-height: 13px;
+    vertical-align: top;
+}
+
+/*only the top row is visible*/
+.moduleContainerBlk:first-child form[name="moduleForm"] div > label {
+    bottom: 24px;
+    display: block;
+    font-size: 9px;
+    left: 0;
+    position: absolute;
+    line-height: 12px;
+}
+.moduleContainerBlk:first-child form[name="moduleForm"] div:first-of-type > label {
+    background-color: #fff;
+    width: 100%;
+}
+
+.radioGroupBlock{
+    font-size: 11px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.moduleOneMoreBtn{
+	display:none !important;
+}
+
+.optionsParent{
+	display:block !important;
+}
+
+.optionsParent:hover .toggleOptions{
+	max-height: 150px;
+    overflow-y: scroll;
+    position: absolute;
+	z-index: 20;
+	display:block !important;
+	background:#FFF;
+	border:solid #CCC 1px !important;
+	border-top:0px;
+	top:100%;
+	font-size:11px;
+	width:200px !important;
+}
+
+.optionsParent:after{
+	content:"";
+	display:block;
+	position:absolute;
+	width:0px;
+	height:0px;
+	bottom:0px;
+	right:0px;
+    border-bottom: 8px solid #0F0;
+    border-left: 8px solid transparent;
+}
+
+.pageText + .moduleContainerBlk form[name="moduleForm"] > div{
+	padding-top:10px;
+}
+
+.moduleContainerBlk form[name="moduleForm"] > div > input[type="password"], 
+.moduleContainerBlk form[name="moduleForm"] > div > input[type="text"] {
+    border: 1px solid;
+    cursor: default;
+    height: 22px;
+    padding-left: 5px;
+    width: 120px;
+}
+
+.moduleContainerBlk form[name="moduleForm"] > div > input[type="password"]:not(.noBulkExpand):focus, 
+.moduleContainerBlk form[name="moduleForm"] > div > input[type="text"]:not(.noBulkExpand):focus {
+    border: 2px solid #018AFF;
+    height: 22px;
+    left: 0;
+    line-height: 22px;
+    position: absolute;
+    bottom: 0;
+    width: 420px;
+    z-index: 10;
+	background:#FFF;
+}
+
+
+.bulkCKEditor{
+	background:url(/images/admin/button-edit.jpg) transparent no-repeat 3px bottom;
+	background-size:16px 16px;
+	margin-left: 5px;
+}
+
+.moduleContainerBlk .moduleFormStyledSelect {
+    border-radius: 0 !important;
+    clear: both;
+    height: 20px !important;
+    margin: 0;
+    width: 215px;
+}
+
+.moduleContainerBlk .moduleFormStyledSelect select {
+    border: 1px solid #000;
+    clear: both;
+    height: 22px;
+    padding: 0;
+    vertical-align: top;
+    width: 100%;
+}
+
+.moduleContainerBlk form[name="moduleForm"] .radioGroupBlock, 
+.moduleContainerBlk form[name="moduleForm"] .subModuleElement .radioGroupBlock{
+	width:auto;
+	min-width:0px;
+}
+
+.moduleContainerBlk form[name="moduleForm"] > div > textarea{
+	height: 30px;
+    min-height: 30px;
+}
+
+.bulkCKEditor > *[class^="cke_"]{
+    display: none;
+    left: 50px;
+    position: fixed;
+    top: 25px;
+    z-index: 900;
+}
+
+.bulkCover::before{
+	display:block;
+	position:fixed;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	background:rgba(0,0,0,0.60);
+	content:"";
+	z-index:250;
+}
+
+.addRec, .bulkAll {
+    background: #1c1c1c none repeat scroll 0 0;
+    border: medium none;
+    box-sizing: border-box;
+    color: #fff;
+    display: inline-block;
+    line-height: 1;
+    margin: 16px;
+    min-width: 150px;
+    padding: 15px 16px;
+    text-align: center;
+    width: auto;
+}
+
+.moduleContainerBlk .adminShowHideParent{
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 15px;
+    text-align: left;
+}
+
+.moduleContainerBlk .adminShowHideChild{
+	position:absolute;
+	background:#CCC;
+	z-index: 575;
+}
+
+.moduleContainerBlk .adminShowHideChild div:nth-child(2n) {
+    clear: left;
+}
+
+
+/*Responsive Additions*/
+/*
+.pcpy {
+    max-width: 100% !important;
+    padding-left: 236px !important;
+}
+.moduleContainerBlk form[name="moduleForm"] > div:first-of-type {
+    background-color: #fff;
+    left: 80px;
+    position: fixed !important;
+    width: 150px !important;
+    z-index: 50;
+}
+.moduleContainerBlk form[name="moduleForm"] > div:first-of-type input {
+    font-weight: bold;
+    width: 100% !important;
+}
+.moduleContainerBlk form[name="moduleForm"] > div:first-of-type label {
+    font-weight: bold;
+}
+.moduleAddEditBtn {
+    bottom: auto !important;
+    left: 16px !important;
+    position: fixed !important;
+}
+.moduleDelBtn {
+    bottom: auto !important;
+    left: 45px !important;
+    position: fixed !important;
+}*/
+.moduleFormStyledSelect {
+    display: inline-block;
+}
+/*
+.mfmcc-addEditPage {
+    border: 2px solid #000;
+    margin: 30px !important;
+    padding: 30px !important;
+}
+*/
+.stickyHeader::before {
+    background-color: #fff;
+    border-bottom: 2px solid #000;
+    content: "";
+    height: 54px;
+    left: 0;
+    position: absolute;
+    top: -11px;
+    width: 100vw;
+    z-index: -1;
+}
+.stickyHeader {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    width: auto;
+	padding-right: 5px;
+    z-index: 500;
+}
+
+.stickyColume {
+    background-color: #fff;
+    border-right: 4px solid;
+    width: 124px !important;
+    z-index: 1;
+}
+.stickyAction {
+    background-color: #fff !important;
+    height: 18px !important;
+    width: 20px !important;
+    z-index: 1;
+}
+
+
+
+
+

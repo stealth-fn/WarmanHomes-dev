@@ -1,0 +1,56 @@
+#blogSideBar{
+	font-family:verdana;
+	left:-150px;
+	position:absolute;
+	width:120px;
+	top:545px;
+	text-align:center;
+}
+
+#latestBlogHeader{
+	padding-bottom:20px;
+	color:#2983fb;
+}
+
+.recentBlogPost{
+	font-size:12px;
+	border-bottom:solid thin #2983fb;
+	padding-top:7px;
+	padding-bottom:7px;
+}
+
+.recentBlogPost:hover{
+	cursor:pointer;
+	color:#2983fb;
+}
+
+#prodListHeader{
+	padding-top:20px;
+	padding-bottom:20px;
+	color:#2983fb;
+}
+
+.viewProdList{
+	font-size:12px;
+	border-bottom:solid thin #2983fb;
+	padding-top:7px;
+	padding-bottom:7px;
+	position:relative;
+}
+
+.viewProdList:hover{
+	cursor:pointer;
+	color:#2983fb;
+}
+
+.prodListLink{
+	display:block;
+	width:100%;
+	height:100%;
+	top:0px;
+}
+
+.prodListLink:hover{
+	cursor:pointer;
+	color:#2983fb;
+}

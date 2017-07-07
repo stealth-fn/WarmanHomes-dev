@@ -1,0 +1,328 @@
+Abu Dhabi
+Admiralty Islands
+Afghanistan
+Aland Islands
+Albania
+Algeria
+Alofi Islands
+American Samoa
+Andaman Islands
+Andorra
+Angola
+Anguilla
+Antigua & Barbuda
+Argentina
+Armenia
+Aruba
+Ascension
+Australia
+Austria
+Azerbaijan
+Azores
+Bahamas
+Bahrain
+Balearic Islands
+Bali
+Bangladesh
+Banka
+Banks Islands
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bermuda
+Bhutan
+Billiton Island
+Bismark Archipelago
+Bolivia
+Bonaire
+Bophuthatswana
+Bosnia & Herzegovina
+Botswana
+Brazil
+Brunei Darussalam
+Bulgaria
+Burkina Faso
+Burma
+Burundi
+Cambodia
+Cameroon
+Canada
+Canary Islands
+Cape Verde
+Cayman Islands
+Celebes
+Central African Rep.
+Ceuta
+Chad
+Chafarinas
+Channel Islands
+Chile
+China
+Christmas Islands
+Ciskei
+Coloane
+Colombia
+Comoros (Fed. Islamic Rep.)
+Congo (Dem. Rep.)
+Congo (People Rep.)
+Cook Islands
+Corfu
+Corsica
+Costa Rica
+Cote d'Ivoire
+Crete
+Croatia
+Cuba
+Curacao
+Cyprus
+Czech Republic
+Daito Island
+Denmark
+Djibouti
+Dodecanese Island
+Dominica
+Dominican Republic
+Dubai
+East Timor
+Ecuador
+Egypt
+El Salvador
+England
+Equatorial Guinea
+Eritrea
+Estonia
+Ethiopia
+Falkland Islands
+Fanning Island
+Faroe Islands
+Fiji
+Finland
+France
+French Guiana
+French Polynesia
+Fujairah
+Futuna Islands
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Gibraltar
+Gilbert Islands
+Great Britain
+Greece
+Greenland
+Grenada
+Guadeloupe
+Guam
+Guatemala
+Guernsey
+Guinea
+Guinea-Bissau
+Guyana
+Haiti
+Hervey Islands
+Hokkaido Island
+Honduras
+Hong Kong
+Honshu Island
+Hunan Islands
+Hungary
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Ireland (Northern)
+Ireland (Republic)
+Isle of Man
+Isle of Pines
+Israel
+Italy
+Jadu
+Jamaica
+Japan
+Java
+Jersey
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Korea North
+Korea South
+Kuwait
+Kyrgystan
+Kyushu Island
+Lagosta
+Lao
+Latvia
+Lebanon
+Leeward Islands (British)
+Leeward Islands (French)
+Lesotho
+Liberia
+Libyan Jamahiriya
+Liechtenstein
+Lithuania
+Loyalty Islands
+Luxembourg
+Macao
+Macedonia
+Madagascar
+Madeira
+Madura Island
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Manus Island
+Mariana Islands
+Marshall Islands
+Marquesas Island
+Martinique
+Mauritania
+Mauritius
+Mayotte
+Mexico
+Micronesia
+Moldova
+Moluccas Islands
+Monaco
+Mongolia
+Montserrat
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+Netherlands
+Netherlands Antilles
+New Britain
+New Caledonia
+New Ireland
+New Zealand
+Nicaragua
+Nicobar Islands
+Niger
+Nigeria
+Niue Islands
+Norfolk Islands
+North Korea
+Northern Ireland
+Norway
+Ocean Island
+Oman
+Outlying Minor Islands
+Pakistan
+Palau
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines
+Pitcairn Islands
+Poland
+Portugual
+Puerto Rico
+Qatar
+Rarotonga Islands
+R¨¦union
+Rhio Island
+Rodriguez Island
+Romania
+Russian Federation
+Rwanda
+Ryukyu Island
+Saba
+Saint Vincent & the Grenadines
+Saint Lucia
+Saipan
+Samoa
+San Marino (Rep.)
+Sao Tome & Principe
+Sardinia
+Saudi Arabia
+Scotland
+Senegal
+Seychelles
+Shikoku Island
+Sierra Leone
+Singapore
+Slovakia
+Slovenia
+Society Islands
+Solomon Islands
+Somalia
+South Africa
+South Korea
+Spain
+Spanish Territories of North Africa
+Spitzbergen
+Sri Lanka
+St. Christopher & Nevis
+St. Croix
+St. Eustatius
+St. Helena
+St. John
+St. Maarten
+St. Pierre & Miquelon
+St. Thomas
+Sudan
+Sumatra Island
+Suriname
+Svalbard
+Swaziland
+Sweden
+Switzerland
+Syrian Arab Rep.
+Tahiti
+Taipa
+Taiwan
+Tajikistan
+Tanzania
+Tarawa Islands
+Tasmania
+Thailand
+Togo
+Tokelau Islands
+Tonga Islands
+Torres Islands
+Tortola Island
+Touamotu Islands
+Transkei
+Trinidad & Tobago
+Tristan da Cunha
+Tubuai Islands
+Tunisia
+Turkey
+Turkmenistan
+Turks & Caicos Islands
+Tuvalu
+Uganda
+Ukraine
+United Arab Emirates
+United States
+Upolu Island
+Uruguay
+Uzbekistan
+Vanuatu
+Vatican
+Venda
+Venezuela
+Viet Nam
+Virgin Gorda
+Virgin Islands (British)
+Virgin Islands (U.S.)
+Wales
+Wallis and Futuna
+Wallis Island
+Washington Island
+Yemen
+Yugoslavia
+Zaire
+Zambia
+Zimbabwe

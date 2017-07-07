@@ -1,0 +1,28 @@
+body
+{
+	margin : 10px;
+	background-color : #ffffff;
+	color : #000000;
+}
+
+body, td, input, select, button, textarea, .defaultFont
+{
+	font-family : Verdana, Arial;
+	font-size : 11px;
+}
+
+.copyright{
+	font-size : 11px;
+	color : #ffffff;
+	font-weight: bold;
+	text-align: right;
+}
+
+.inputField {
+	width : 300px;
+}
+
+.pageTitle{
+	font-size : 14px;
+	font-weight:bold;
+}

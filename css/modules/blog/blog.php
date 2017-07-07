@@ -1,0 +1,3 @@
+.addModuleVideo{
+	display:none;
+}

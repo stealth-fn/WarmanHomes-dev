@@ -1,0 +1,91 @@
+#imageAreaMapHotspotsContainer{
+}
+
+.boxLvl1{
+	background-color: white;
+	border: 1px solid #888;
+	border-radius: 5px 5px 5px 5px;
+	color: #323232;
+	font-size: 13px;
+	padding: 26px 10px 43px 0;
+	width: 443px;
+	position:relative;
+}
+
+.hotspotFirstContainer{
+	margin-left:25px !important;
+}
+
+.boxLvl2{
+	background-color: #EEE;
+	border: 1px solid #888;
+	border-radius: 5px 5px 5px 5px;
+	margin-top: 10px;
+	padding: 10px;
+}
+
+.boxLvl2 h3{
+	font-size: 15px;
+    margin: 13px 0;
+}
+
+.hotspotSecondContainer label{
+	width: 90px !important;
+}
+
+.hotspotSecondContainer input[type="text"]{
+	width: 288px !important;
+	margin: 6px 0;
+}
+
+.hotspotGroupsContainer > .hotspotGroup > label > span{
+    border: 1px solid #888888;
+    border-radius: 4px 4px 4px 4px;
+    display: block;
+    float: left;
+    height: 20px;
+    margin-bottom: 10px;
+    margin-right: 5px;
+    width: 25px !important;
+}
+
+
+
+.hotspotGroupsContainer{
+}
+
+.hotspotGroupsContainer > h3{
+	
+}
+
+.hotspotDataContainer{
+}
+
+.hotspotsTitle{
+}
+
+.hotspotGroup label{
+	display:inline !important;
+}
+
+#imageAreaMapHotspotsContainer > #imageAreaMapHotspotsContainerInner div{
+	margin-right:0;
+}
+
+.hotspotFirstContainer .modSubElRem{
+	top:0;
+	width:auto !important;
+	height:auto !important;
+	padding-left:15px;
+	background-position: left center;
+}
+
+.boxLvl1 #addHotspot{
+    background-position: left center;
+    bottom: 11px;
+    height: auto !important;
+    padding-left: 15px;
+    position: absolute;
+    right: 0;
+    width: auto !important;
+}

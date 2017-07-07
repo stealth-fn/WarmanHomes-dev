@@ -1,0 +1,171 @@
+#viewCartShippingInfo {
+	position: relative;
+}
+#viewCartShippingInfo input, #viewCartShippingInfo select {
+	border: 2px solid #000;
+	font-size: 16px;
+	padding: 10px;
+	width: 100%;
+}
+.cartValueHeading {
+	float: left;
+}
+#viewCartTotals span {
+	display: block;
+}
+#shippingOptionsWaiting {
+	background: linear-gradient(to bottom, #FDC52D 0%, #E88311 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+	bottom: 0;
+	border-radius: 10px;
+	height: 200px;
+	left: 0;
+	line-height: 200px;
+	margin: auto;
+	position: fixed;
+	right: 0;
+	text-align: center;
+	top: 0;
+	width: 300px;
+	z-index: 100;
+}
+.cartValue {
+    float: right;
+    padding-left: 60px;
+    padding-right: 60px;
+    text-align: right;
+    text-indent: 0;
+}
+.viewCartshippingInfoItem {
+	display: inline-block;
+	padding: 1em;
+	width: 49%;
+}
+#sendOrder {
+	color: #FFFFFF;
+	cursor: pointer;
+	font-size: 11px;
+	height: 48px;
+	padding-left: 10px;
+	padding-top: 8px;
+	width: 138px;
+}
+#payTable td {
+	padding: 5px;
+}
+#shippingInfoHeader {
+	height: auto !important;
+	overflow: auto;
+	font-size: 15px;
+}
+#shippingOptions {
+	font-size: 14px;
+	height: auto;
+	position: relative;
+}
+#methodsHeader {
+	height: 45px !important;
+}
+#delDateHeader {
+	height: 45px !important;
+}
+#rateHeader {
+	height: 45px !important;
+}
+.shippingDelDate {
+	float: left;
+	padding-right: 50px;
+	width: 175px;
+}
+.shippingRate {
+	float: left;
+}
+.shippingCompany {
+	display: none;
+}
+.shippingMethods {
+	clear: both;
+	float: left;
+	padding-bottom: 15px;
+	padding-right: 20px;
+	width: 175px;
+}
+#viewCartShippingOptions {
+    margin-top: 45px;
+    overflow: auto;
+}
+#shippingInfoContainer {
+    margin: auto;
+    max-width: 1024px;
+    width: 100%;
+}
+.shippingBold {
+	color: #F00;
+}
+.methodCheck {
+	float: left;
+}
+#viewCartContainer h2 {
+    padding-top: 35px;
+    text-align: center;
+}
+#viewCartShippingInfo {
+	margin: 0 auto;
+	max-width: 1024px;
+	width: 100%;
+}
+#viewCartShippingInfo p {
+	position: relative;
+	text-align: center;
+}
+#calcShipButton, #checkoutButton {
+	background-color: #e88311;
+	border: 2px solid #e88311;
+	color: #fff;
+	cursor: pointer;
+	display: block;
+	font-size: 20px;
+	line-height: 1;
+	margin: auto;
+	max-width: 250px;
+	padding: 12px 25px;
+	text-align: center;
+}
+#calcShipButton:hover, #checkoutButton:hover {
+	background-color: #fff;
+	border: 2px solid #e88311;
+	color: #e88311;
+}
+#shippingForm label {
+	font-weight: bold;
+}
+#shippingForm label span {
+	font-style: italic;
+	font-weight: normal;
+}
+#viewCartTotals {
+    font-weight: bold;
+    margin: 0 auto;
+    max-width: 1024px;
+    width: 100%;
+}
+#viewCartTotals span {
+	font-weight: normal;
+}
+#checkout {
+	background-color: #fff;
+	padding-bottom: 35px;
+	padding-top: 35px;
+}
+#viewCartProdTotal, #viewCartTaxesTotal, #viewCartShippingTotal, #getCartTotal {
+    background-color: #d8d8d8;
+    line-height: 1;
+    padding: 1em;
+    text-align: right;
+}
+#getCartTotal {
+	margin-bottom: 35px;
+}
+
+.shippingInfoHeader {
+	font-weight: bold;	
+}

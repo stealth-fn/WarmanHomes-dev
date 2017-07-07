@@ -1,0 +1,22 @@
+#chatContainer{
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:300px;
+	height:300px;
+	overflow-y:scroll;
+}
+
+#message{
+	position:absolute;
+	top:325px;
+	left:0px;
+	width:300px;
+	height:100px;
+}
+
+#moduleAddEditBtn{
+	position:absolute;
+	top:435px;
+	left:0px;
+}

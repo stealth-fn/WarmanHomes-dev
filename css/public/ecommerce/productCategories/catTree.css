@@ -1,0 +1,15 @@
+.catTreeLvl1{
+	width:100px;
+	height:50px;
+	position:relative;
+	float:left;
+	z-index:10000;
+}
+
+.catTreeLvl2{
+	width:100px;
+	height:50px;
+	position:relative;
+	float:left;
+	z-index:10000;
+}

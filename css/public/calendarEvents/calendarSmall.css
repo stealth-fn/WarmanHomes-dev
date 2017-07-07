@@ -1,0 +1,136 @@
+#pageCopy{
+	min-height:1775px !important;
+}
+
+#calendarContainer{
+	z-index:500;
+	position:absolute;
+	width:354px;
+	overflow:hidden;
+	right:0px;
+	top:300px;
+	background-image:url(/images/lead-blog-home-background.png);
+	background-position:top center;
+	background-repeat:no-repeat;
+	padding:15px;
+	height:281px;
+}
+
+#calTable{
+	font-size:8px;
+	position:absolute;
+	right:12px;
+	top:100px;
+	background-color:#FFF;
+}
+
+.dayWithEvent{
+	background-color:#3bb54a;
+}
+
+.dayboxes:hover .toprightnumber:hover{
+	cursor:pointer;
+	color:#FFF;
+	background-color:#3bb54a;
+}
+
+.dayboxes a .toprightnumber a{
+	color:#000;
+	text-decoration:none;
+}
+
+.eventinbox{
+	display:none;
+}
+
+.currentdate{
+	display:none;
+}
+
+#calTopDate{
+	width:150px;
+	position:absolute;
+	top:50px;
+	right:-10px;
+}
+
+#dateLeft{
+	position:relative;
+	top:17px;
+	left:20px;
+}
+
+#dateRight{
+	position:relative;
+	top:17px;
+	right:20px;
+}
+
+#calTopDate table{
+	width:150px;
+}
+
+#calTopDate select{
+	font-size:8px;
+}
+
+#currDateDiv{
+	background-image:url(/images/ProgramDetails/calendar-class-times.png);
+	width:240px;
+	height:255px;
+	position:relative;
+	top:40px;
+}
+
+#topTwo{
+	width:130px;
+	height:120px;
+	position:absolute;
+	bottom:0px;
+	right:-5px;
+}
+
+#upcomingEventHeader{
+	text-align:center;
+	font-size:12px;
+	position:relative;
+	bottom:10px;
+	font-weight:600;
+}
+
+.upComingDate{
+	float:left;
+	width:39px;
+	height:40px;
+	color:#FFF;
+	text-align:center;
+	background-repeat:no-repeat;
+}
+
+.upComingDate:hover{
+	color:#000;
+	cursor:pointer;
+}
+
+.eventDateDate{
+	font-size:24px;
+	position:relative;
+	bottom:5px;
+}
+
+#topDate{
+	background-image:url(/images/ProgramDetails/calendar-top-green.png);
+}
+
+#bottomDate{
+	background-image:url(/images/ProgramDetails/calendar-bottom-green.png);
+	margin-top:7px;
+}
+
+.eventDateTitle{
+	float:right;
+	height:29px;
+	padding-top:15px;
+	width:85px;
+	overflow:hidden;
+}

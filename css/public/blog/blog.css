@@ -1,0 +1,104 @@
+#blogContainer{
+	position:relative;
+	width:92.5%;
+	min-height:498px;
+	padding:30px;
+	padding-top:15px;
+}
+
+#mainVideo{
+	width:480px; 
+	height:385px;
+}
+
+#blogContainer div{
+}
+
+.blogNameContainer{
+	font-size:36px;
+}
+
+.blogDateTimeContainer{
+}
+
+.blogCopyContainer{
+	padding-top:20px;
+}
+
+.viewBlogComment{
+	display:none !important;
+}
+
+.criteriaMsg{
+	color:#FFF;
+}
+
+.addBlogComment{
+	display:block;
+	width:155px;
+	height:10px;
+	position:relative !important; 
+	bottom:-35px !important;
+	left:135px;
+}
+
+.commentCount{
+	position:relative;
+}
+
+.commentContainer{
+	padding:15px;
+	position:relative;
+	top:20px;
+	color:#000;
+	display:block !important;
+}
+
+.userCommentContainer{
+	border-bottom:#00F solid thin;
+}
+
+#pastHeader{
+	color:#2983FB;
+	padding-bottom: 20px;
+}
+
+#pastBlogEnteries{
+	padding-bottom:20px;
+}
+
+.blogMonth{
+	border-bottom:thin solid #2983FB;
+	font-size:12px;
+	padding-bottom:7px;
+	padding-top:7px;
+}
+
+.blogMonth:hover{
+	cursor:pointer;
+	color:#2983fb;
+}
+
+#blogCatContainer{
+}
+
+#blogCatHeader{
+	color:#2983FB;
+	padding-bottom: 20px;
+}
+
+.blogCat{
+	border-bottom:thin solid #2983FB;
+	font-size:12px;
+	padding-bottom:7px;
+	padding-top:7px;
+}
+
+.blogCat:hover{
+	cursor:pointer;
+	color:#2983fb;
+}
+
+#addBlogComment94{
+	top:35px;
+}

@@ -1,0 +1,8 @@
+#blogLandingContainer{
+	position:relative;
+}
+
+.blogLandingMoreBtn{
+	position:absolute !important;
+	bottom: auto !important;
+}

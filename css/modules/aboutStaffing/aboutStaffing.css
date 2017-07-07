@@ -1,0 +1,38 @@
+#mfmc-as{
+    background: url("/images/banner-video-overlay.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    padding-bottom: 30px;
+    padding-top: 30px;
+	color:#FFF;
+}
+
+.mi-as{
+	max-width:1004px;
+	margin:0px auto;
+}
+
+#mfmc-as label{
+	width:100%;
+}
+
+.phoneContainer > div{
+    display: inline-block;
+    margin-right: 2px;
+    width: 30% !important;
+}
+
+.phoneContainer input, .phoneContainer select,
+.phoneContainer .moduleFormStyledSelect{
+	width:100% !important;
+}
+
+.moduleAddEditBtn{
+	margin-top:15px;
+}
+
+#mfmc-as textarea, .halfRowCheck, .radioGroupBlock{
+	margin-bottom:16px;
+}
+
+#pcpy2245 .halfRowCheck{
+	width:100% !important;
+}

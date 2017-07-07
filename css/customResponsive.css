@@ -1,0 +1,220 @@
+.backItemClass i {
+	display: none;
+}
+
+.backItemClass a {
+    display: inline-block !important;
+    line-height: 40px;
+    width: 85%;
+}
+
+.multilevelpushmenu_wrapper ul {
+	position: static;
+}
+
+.multilevelpushmenu_wrapper li {
+	position: static;
+	min-height: 60px;
+	padding:10px;
+}
+
+.mNav  a, .mNav .ntp{
+    display: inline-block;
+    padding-bottom: 4vh;
+    padding-top: 4vh;
+    vertical-align: middle;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.childShow {
+    background: transparent url("/images/mobile-plus.png") no-repeat scroll center center / 32px auto;
+    height: 32px;
+    padding-bottom: 10px !important;
+    padding-top: 10px !important;
+    width: 15%;
+	vertical-align:middle;
+}
+.childShow:hover {
+    background-image: url("/images/mobile-plus-white.png");
+}
+
+.multilevelpushmenu_wrapper .ntp{
+	width:85%;
+}
+
+/*this is the button that we click to go a specific open level*/
+.cMenu > h2 > i {
+    display: block;
+    height: 4000px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40px;
+}
+
+#navOuter-tNav_multilevelpushmenu.multilevelpushmenu_wrapper > .ltr{
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+/*makes long navs scrollable*/
+.levelHolderClass ul {
+	height:calc(100vh - 85px);
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+/*this pseudoelement is so we can use vertical align on the text without a children link*/
+.multilevelpushmenu_wrapper li:not(.hc)::after{
+    content: "";
+    display: inline-block;
+    height: 60px;
+    vertical-align: middle;
+    width: 1px;
+}
+
+.multilevelpushmenu_wrapper .backItemClass {
+    min-height: 60px;
+}
+/*Button to open Mobile Nav*/
+#navOuter-tNav.mobileNav .responsiveBtn {
+    background-color: #009ada !important;
+}	
+#navOuter-tNav .multilevelpushmenu_wrapper a {
+	color: #000;	
+}
+#navOuter-tNav .multilevelpushmenu_wrapper .levelHolderClass {
+    background: #fff none repeat scroll 0 0;
+}
+#navOuter-tNav .multilevelpushmenu_wrapper li:hover,
+.mobileNavExp .ntl1:hover{
+    background-color: #d4d7d9;
+}
+#navOuter-tNav .multilevelpushmenu_wrapper .backItemClass {
+    background: #d4d7d9 none repeat scroll 0 0;
+}
+#navOuter-tNav .multilevelpushmenu_wrapper .childShow {
+
+}
+
+/*Lines Under Navigation Lables*/
+#navOuter-tNav .multilevelpushmenu_wrapper li,
+.mobileNavExp .ntl1{
+    border-top: 1px solid #000;
+}
+#navOuter-tNav .multilevelpushmenu_wrapper li:last-child,
+.mobileNavExp .ntl1:last-child{
+    border-bottom: 1px solid #000;
+}
+
+/*styles for expanding type responsive nav*/
+.mobileNavExp.closedMobileNav{
+	min-height:auto !important;
+	background:none;
+}
+
+.mobileNavExp{
+	text-align:left;
+	padding-top:100px;
+	width:100%;
+	background:#FFF;
+}
+
+.mNavClosed{
+	height: 0px !important;
+}
+
+.mobileNavExp #navInner-tNav{
+	overflow-y:auto;
+	overflow-x:hidden;
+	height: calc(100vh - 85px);
+	transition: height 0.4s;
+	background:#FFF;
+}
+
+.mobileNavExp .ntl1 {
+	width:100%;
+	margin-left:0px !important;
+	text-align:left;
+}
+
+.mobileNavExp .childShow {
+    background-position: 0 0;
+    display: block;
+    height: 32px;
+    margin: auto 0;
+    position: absolute;
+    right: 1%;
+    top: 3.45vh;
+    width: 32px;
+}
+
+.mobileNavExp .fakeHover .tpc1 {
+	color:#000 !important;
+}
+
+.mobileNavExp .tpc1 {
+	position:relative !important;
+}
+
+.mobileNavExp .ec {
+	width: 100% !important;
+}
+
+.mobileNavExp .ntp {
+	text-align:left;
+	display:inline-block !important;
+	width:90%;
+	font-family: "Open Sans Condensed",sans-serif;
+	color:#000;
+	font-size:1.5em;
+	line-height:1em;
+	padding-left:10px;
+}
+
+.mobileNavExp .hover{
+	width:100%;
+}
+
+.mobileNavExp .tpc1 li{
+	background: #ABABAB;
+	border-top: 1px solid #000;
+}
+
+.mobileNavExp .tpc1 > li > a{
+	text-indent:10px;
+}
+
+.mobileNavExp .tpc2 > li > a{
+	text-indent:20px;
+}
+
+.mobileNavExp .tpc3 > li > a{
+	text-indent:30px;
+}
+
+.mobileNavExp .tpc4 > li > a{
+	text-indent:40px;
+}
+
+.mobileNavExp .tpc5 > li > a{
+	text-indent:50px;
+}
+
+.mobileNavExp .tpc6 > li > a{
+	text-indent:60px;
+}
+
+/*if there are no member pages under a parent*/
+.mNav .ec:empty, .mNav .ec:empty ~ .childShow{
+	display:none !important;
+} 
+
+.hover > .childShow{
+	transform:rotate(45deg);
+	transition: transform 0.5s;
+}

@@ -1,0 +1,22 @@
+#searchContainer{
+    height: 50px;
+    position: absolute;
+    right: 25px;
+    top: 15px;
+    width: 430px;
+}
+
+#searchBtn{
+	display:none;
+}
+
+#searchTerm{
+	height:28px;
+	line-height:28px;
+	border-radius:2px;
+	border:solid 1px #CCC;
+	padding-left:5px;
+	position:absolute;
+	right:0px;
+	width:175px;
+}

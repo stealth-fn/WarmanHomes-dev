@@ -1,0 +1,29 @@
+#videoThumbsContainer{
+	width:225px;
+	height:385px;
+	position:absolute;
+	right:25px;
+	top:98px;
+	overflow-x:hidden;
+	overflow-y:scroll;
+}
+
+.vidImg:hover{
+	cursor:pointer;
+}
+
+.vidDesc{
+	margin-bottom:5px;
+}
+
+.vidTitle{
+	padding-bottom:5px;
+}
+
+
+.vidThumb{
+	margin-bottom:10px;
+	padding-bottom:10px;
+	border-bottom:thin solid #FFF;
+	font-size:12px;
+}

@@ -1,0 +1,9 @@
+#dateContainer{
+	position:absolute;
+	width:182px;
+	top: 55px;
+	left: 25px;
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:12px;
+	font-weight:600;
+}

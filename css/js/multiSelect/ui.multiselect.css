@@ -1,0 +1,44 @@
+/* Multiselect
+----------------------------------*/
+
+.ui-multiselect { border: solid 1px !important; font-size: 0.8em !important; }
+.ui-multiselect ul { -moz-user-select: none !important; }
+.ui-multiselect li { margin: 0 !important; padding: 0 !important; cursor: default !important; line-height: 20px !important; height: 20px !important; font-size: 11px !important; list-style: none !important; }
+.ui-multiselect li a { color: #999 !important; text-decoration: none !important; padding: 0 !important; display: block !important; float: left !important; cursor: pointer !important;}
+.ui-multiselect li.ui-draggable-dragging { padding-left: 10px !important; }
+
+.ui-multiselect div.selected { position: relative !important; padding: 0 !important; margin: 0 !important; border: 0 !important; float:left !important; }
+.ui-multiselect ul.selected { position: relative !important; padding: 0 !important; overflow: auto !important; overflow-x: hidden !important; background: #fff !important; margin: 0 !important; list-style: none !important; border: 0 !important; position: relative !important; width: 100% !important; }
+.ui-multiselect ul.selected li { }
+
+.ui-multiselect div.available { position: relative !important; padding: 0 !important; margin: 0 !important; border: 0 !important; float:left !important; border-left: 1px solid !important; }
+.ui-multiselect ul.available { position: relative !important; padding: 0 !important; overflow: auto !important; overflow-x: hidden !important; background: #fff !important; margin: 0 !important; list-style: none !important; border: 0 !important; width: 100% !important; }
+.ui-multiselect ul.available li { padding-left: 10px !important; }
+ 
+.ui-multiselect .ui-state-default { border: none !important; margin-bottom: 1px !important; position: relative !important; padding-left: 20px !important;}
+.ui-multiselect .ui-state-hover { border: none !important; }
+.ui-multiselect .ui-widget-header {border: none !important; font-size: 11px !important; margin-bottom: 1px !important;}
+ 
+.ui-multiselect .add-all { float: right !important; padding: 7px !important;}
+.ui-multiselect .remove-all { float: right !important; padding: 7px !important;}
+.ui-multiselect .search { float: left !important; padding: 4px !important;}
+.ui-multiselect .count { float: left !important; padding: 7px !important;}
+
+.ui-multiselect li span.ui-icon-arrowthick-2-n-s { position: absolute !important; left: 2px !important; }
+.ui-multiselect li a.action { position: absolute !important; right: 2px !important; top: 2px !important; }
+ 
+.ui-multiselect input.search { height: 14px !important; padding: 1px !important; opacity: 0.5 !important; margin: 4px !important; width: 100px !important; }
+
+.connected-list, .ui-multiselect{
+	height: auto !important;
+}
+
+.ui-multiselect .selected, .ui-multiselect .available, .ui-multiselect .ui-state-default{
+	width: auto !important;
+}
+
+/*these buttons don't seem to work. just hidden*/
+.remove-all, .add-all{
+	display:none !important;
+}
+

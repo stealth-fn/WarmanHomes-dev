@@ -1,0 +1,26 @@
+#productFeatureContainer, #productFeatureContainer2 {
+	height: auto;
+	overflow: auto;
+}
+.featureContainer, .featureContainer2 {
+	border: 1px solid;
+	margin-bottom: 5px;
+	padding-top: 5px;
+	position: relative;
+}
+.featureContainer input, .featureContainer2 input {
+	position: static !important;
+}
+.productPurchasable {
+	margin-left: 20px;
+}
+.moduleContainer form[name=moduleForm] div #addFeature {
+	background: transparent url('/images/admin/button-add-small.jpg') left 50% no-repeat;
+	padding-left: 18px;
+	width: auto;
+}
+.featureContainer .modSubElRem,  .featureContainer2 .modSubElRem {
+	position: absolute !important;
+	right: 250px !important;
+	top: 0;
+}

@@ -1,0 +1,36 @@
+div.slider{ 
+	width:256px; 
+	margin:10px 0; 
+	background-color:#ccc; 
+	height:10px; 
+	position: relative; 
+}
+
+div.slider div.handle{ 
+	width:10px; 
+	height:15px; 
+	background-color:#f00; 
+	cursor:move; 
+	position: absolute; 
+}
+
+div#zoom_element_small{ 
+	width:50px; 
+	height:50px; 
+	background:#2d86bd; 
+	position:relative; 
+}
+
+div#zoom_element_medium{ 
+	width:175px; 
+	height:175px; 
+	background:#FF6633; 
+	position:relative; 
+}
+
+div#zoom_element_large{ 
+	width:335px; 
+	height:335px; 
+	background:#0066FF;
+	position:relative; 
+}
