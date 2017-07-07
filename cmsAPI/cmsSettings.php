@@ -10,10 +10,10 @@
 		(!isset($_SESSION["domainID"]))
 	){	
 		
-		$_SESSION['dbHostName'] = 'cmsprod.stealthssd.com';
-		$_SESSION['dbUsername'] = 'mystealt_cmsprod';
-		$_SESSION['dbPassword'] = 'uWPew@fkZ8IU';
-		$_SESSION['dbName'] = 'mystealt_cmsprod';
+		$_SESSION['dbHostName'] = 'warmanhomesdev.stealthssd.com';
+		$_SESSION['dbUsername'] = 'mystealt_warhdev';
+		$_SESSION['dbPassword'] = '~F(T#Bk8g0m}';
+		$_SESSION['dbName'] = 'mystealt_warhom_dev';
 		
 		# Fetch CMS Setting from DB
 		
